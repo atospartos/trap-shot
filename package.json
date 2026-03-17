@@ -1,0 +1,26 @@
+{
+  "name": "app1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop trading-bot-mvp",
+    "pm2:logs": "pm2 logs trading-bot-mvp",
+    "pm2:monit": "pm2 monit"
+  },
+  "keywords": [],
+  "author": "atospartos",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.6",
+    "ccxt": "^4.5.43",
+    "dotenv": "^17.3.1",
+    "node-telegram-bot-api": "^0.67.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

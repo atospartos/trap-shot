@@ -1,0 +1,866 @@
+[2026-03-16T17:25:20.623Z] [ERROR] fetchFundingRate error mexc:
+{
+  "error": "Request failed with status code 404"
+}
+[2026-03-16T17:35:40.621Z] [ERROR] fetchFundingRate error mexc:
+{
+  "error": "Request failed with status code 404"
+}
+[2026-03-16T17:36:47.492Z] [ERROR] fetchPositionLimits error mexc:
+{
+  "error": "this.fetchMexcLimits is not a function"
+}
+[2026-03-16T17:36:47.854Z] [ERROR] fetchFundingRate error mexc:
+{
+  "error": "Request failed with status code 404"
+}
+[2026-03-16T17:37:02.505Z] [ERROR] fetchPositionLimits error mexc:
+{
+  "error": "this.fetchMexcLimits is not a function"
+}
+[2026-03-16T17:37:02.952Z] [ERROR] fetchFundingRate error mexc:
+{
+  "error": "Request failed with status code 404"
+}
+[2026-03-16T17:51:48.650Z] [ERROR] fetchPositionLimits error mexc:
+{
+  "error": "this.fetchMexcLimits is not a function"
+}
+[2026-03-16T17:51:49.037Z] [ERROR] fetchFundingRate error mexc:
+{
+  "error": "Request failed with status code 404"
+}
+[2026-03-16T17:51:49.868Z] [ERROR] Ошибка mexc GF/USDT:
+Timeout
+[2026-03-16T17:56:16.623Z] [ERROR] Ошибка mexc GF/USDT:
+Timeout
+[2026-03-16T18:00:58.469Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+Request timeout
+[2026-03-16T18:01:05.984Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+Request timeout
+[2026-03-16T18:03:21.956Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+feeCalculator is not defined
+[2026-03-16T18:03:59.596Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+feeCalculator is not defined
+[2026-03-16T18:08:40.817Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+feeCalculator is not defined
+[2026-03-16T18:15:21.740Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+profitability is not defined
+[2026-03-16T18:15:47.972Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+profitability is not defined
+[2026-03-17T12:03:53.387Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+profitability is not defined
+[2026-03-17T12:08:44.742Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+profitability is not defined
+[2026-03-17T12:34:58.799Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:35:31.186Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:35:31.783Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:36:04.095Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:36:04.729Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:36:37.260Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:36:37.898Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.527Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.554Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.636Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.649Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.665Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.700Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.761Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.791Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.836Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.863Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.890Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.918Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.924Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.925Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.951Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.963Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:23.989Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.003Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.003Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.004Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.005Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.006Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.022Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.022Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.024Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.025Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.025Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.026Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.027Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.027Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.041Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.041Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.042Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.043Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.044Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.044Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.047Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.048Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.067Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.070Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.071Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.072Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.072Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.085Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.086Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.086Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.089Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.116Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.117Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.118Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.119Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.120Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.121Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.121Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.122Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.123Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.125Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.137Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.138Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.139Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.140Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.140Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.142Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.160Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.171Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.173Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.174Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.175Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.177Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.186Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.187Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.188Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.189Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.189Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.211Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.212Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.213Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.215Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.235Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.236Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.237Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.281Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.282Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.283Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.284Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.285Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.285Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.286Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.287Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.288Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.323Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.324Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.325Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.325Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.326Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.326Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.327Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.329Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.330Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.331Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.331Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.332Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.333Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.333Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.334Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.343Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.343Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.344Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.345Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.346Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.347Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.359Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.359Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.360Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.361Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.361Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.362Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.362Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.363Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.363Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.363Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.380Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.402Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.403Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.404Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.404Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.405Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.406Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.407Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.407Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.408Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.410Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.413Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.424Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.425Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.425Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.426Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.427Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.427Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.428Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.443Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.444Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.444Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.445Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.445Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.460Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.461Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.462Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.480Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.480Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.481Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.506Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.507Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.509Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.510Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.511Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.511Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.512Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.513Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.513Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.514Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.523Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.523Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.524Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.525Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.525Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.526Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.527Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.528Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.529Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.530Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.532Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.547Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.548Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.549Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.550Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.551Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.552Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.552Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.582Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.583Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.584Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.584Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.585Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.586Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.592Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.593Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.594Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.595Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.609Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.610Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.611Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.612Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.631Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.632Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.632Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.633Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.635Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.658Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.659Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.660Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.662Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.663Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.676Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.676Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.677Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.678Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.699Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.699Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.700Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.701Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.702Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.702Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.706Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.726Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.726Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.727Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.728Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.747Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.747Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.748Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.749Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.792Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.793Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.793Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.794Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.795Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.811Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.811Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.830Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.831Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.831Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.832Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.833Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.850Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.851Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.852Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.852Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.853Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.853Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.854Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.855Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.865Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.876Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.877Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.877Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.878Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.879Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.902Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.902Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.903Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.904Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.904Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.911Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.912Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.926Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.928Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.928Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.945Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.945Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.949Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.975Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.995Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.996Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.997Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.998Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:24.999Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.000Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.028Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.059Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.059Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.060Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.061Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.061Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.062Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.085Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.085Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.086Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.110Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.111Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.111Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.112Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.128Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.129Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.130Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.130Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.148Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.149Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.150Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.150Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.151Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.152Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.154Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.158Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.160Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.171Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.194Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.196Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.202Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.217Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.221Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.240Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.241Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.251Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.255Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.256Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.274Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.275Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.287Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.288Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.289Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.310Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.337Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.340Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.355Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.356Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.373Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.383Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.455Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.502Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.503Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.509Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.549Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.551Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.599Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.645Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.690Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.743Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.790Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.860Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.887Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.936Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:25.986Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.035Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.086Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.138Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.184Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.255Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.302Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.333Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.398Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.439Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.491Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.533Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.598Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.633Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.681Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.734Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.786Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.845Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.890Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.947Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:26.991Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.041Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.104Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.137Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.184Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.251Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.289Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.335Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.384Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.435Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.484Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.546Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.585Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.637Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.684Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.734Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.790Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.850Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.908Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.967Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:27.993Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.043Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.116Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.138Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.203Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.265Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.312Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.348Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.386Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.437Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.495Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.544Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.587Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.638Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:50:28.691Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:54:09.140Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:54:14.632Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:54:15.007Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:54:20.644Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+data is not defined
+[2026-03-17T12:54:20.988Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+data is not defined
+[2026-03-17T12:57:52.586Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+whaleSignal is not defined
+[2026-03-17T13:06:30.522Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+statisticalModel.getDirectionalStats is not a function
+[2026-03-17T13:06:35.576Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+statisticalModel.getDirectionalStats is not a function
+[2026-03-17T13:06:35.693Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+statisticalModel.getDirectionalStats is not a function
+[2026-03-17T13:06:41.687Z] [ERROR] ❌ Ошибка mexc GF/USDT:
+statisticalModel.getDirectionalStats is not a function
+[2026-03-17T13:06:42.126Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+statisticalModel.getDirectionalStats is not a function
+[2026-03-17T13:18:37.111Z] [ERROR] ❌ Ошибка gateio GF/USDT:
+statisticalModel.getDivergenceStats is not a function
