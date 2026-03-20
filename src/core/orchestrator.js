@@ -7,23 +7,16 @@ const divergenceTracker = require('../notifier/divergenceTracker');
 class Orchestrator {
     constructor() {
         this.isRunning = false;
-
-        // Список отслеживаемых токенов
-        this.tokens = require('../config/tokens');
-
-        // Активные разрывы для отслеживания
-        this.activeDivergences = new Map(); // key: symbol:exchange -> divergence data
-
-        // Настройки
-        this.config = {
-            delayBetweenTokens: 250,      // 250ms между запуском токенов
-            cycleInterval: 5000,          // 5 секунд между циклами
+        this.tokens = require('../config/tokens'); // Список отслеживаемых токенов
+        this.activeDivergences = new Map(); // Активные разрывы для отслеживания {key: symbol:exchange -> divergence data}
+        this.config = { // Настройки
+            delayBetweenTokens: 250, // 250ms между запуском токенов
+            cycleInterval: 5000, // 5 секунд между циклами
             timeouts: {
                 dex: 2000,
                 cex: 2000,
             }
         };
-
         this.stats = {
             cyclesCompleted: 0,
             tokensProcessed: 0,
@@ -47,9 +40,7 @@ class Orchestrator {
 
         this.isRunning = true;
         this.stats.startTime = Date.now();
-
-        // Запускаем бесконечные циклы
-        this.runCycles();
+        this.runCycles(); // Запускаем бесконечные циклы
 
         logger.info(`✅ Оркестратор запущен, токенов в списке: ${this.tokens.length}`);
     }
@@ -71,17 +62,14 @@ class Orchestrator {
         logger.info(`\n🔄 === НАЧАЛО ЦИКЛА ${this.stats.cyclesCompleted + 1} ===`);
         logger.info(`📊 Запускаем ${this.tokens.length} токенов с интервалом ${this.config.delayBetweenTokens}ms...`);
 
-        // Создаем промисы для всех токенов с задержкой между запусками
-        const tokenPromises = [];
+        const tokenPromises = []; // Создаем промисы для всех токенов с задержкой между запусками
 
         for (let i = 0; i < this.tokens.length; i++) {
             const token = this.tokens[i];
 
-            // Задержка перед запуском каждого токена (кроме первого)
             if (i > 0) {
-                await this.delay(this.config.delayBetweenTokens);
+                await this.delay(this.config.delayBetweenTokens); // Задержка перед запуском каждого токена (кроме первого)
             }
-
             // Запускаем обработку токена
             const promise = this.processToken(token).catch(error => {
                 logger.error(`❌ [${token.symbol}] Ошибка: ${error.message}`);
@@ -91,14 +79,12 @@ class Orchestrator {
             tokenPromises.push(promise);
         }
 
-        // Ждем завершения всех токенов
-        const results = await Promise.allSettled(tokenPromises);
+        const results = await Promise.allSettled(tokenPromises); // Ждем завершения всех токенов
 
-        // Подсчитываем успешные
         let successCount = 0;
         for (const result of results) {
             if (result.status === 'fulfilled' && result.value) {
-                successCount++;
+                successCount++; // Подсчитываем успешные
             }
         }
 
@@ -118,11 +104,10 @@ class Orchestrator {
         logger.info(`📊 [${token.symbol}] Запуск...`);
 
         try {
-            // Получаем DEX данные
-            const dexPromise = this.getDexData(token);
 
-            // Получаем CEX данные с разных бирж (все параллельно)
-            const cexPromises = [];
+            const dexPromise = this.getDexData(token);// Получаем DEX данные
+
+            const cexPromises = []; // Получаем CEX данные с разных бирж (все параллельно)
 
             if (token.cex?.mexc) {
                 cexPromises.push(this.getCexData(token, 'mexc'));
@@ -134,10 +119,9 @@ class Orchestrator {
                 cexPromises.push(this.getCexData(token, 'binance'));
             }
 
-            // Ждем все запросы параллельно
             const [dexResult, ...cexResults] = await Promise.allSettled([
                 dexPromise,
-                ...cexPromises
+                ...cexPromises // Ждем все запросы параллельно
             ]);
 
             const dexData = dexResult.status === 'fulfilled' ? dexResult.value : null;
@@ -145,9 +129,8 @@ class Orchestrator {
                 .filter(r => r.status === 'fulfilled' && r.value)
                 .map(r => r.value);
 
-            // Анализируем если есть данные
             if (dexData && cexData.length > 0) {
-                this.analyzeTokenData(token.symbol, dexData, cexData);
+                this.analyzeTokenData(token.symbol, dexData, cexData); // Анализируем если есть данные
 
                 const duration = Date.now() - tokenStartTime;
                 logger.info(`✅ [${token.symbol}] Обработан за ${duration}ms`);
@@ -212,16 +195,13 @@ class Orchestrator {
                     netProfit
                 });
 
-                // ОТСЛЕЖИВАНИЕ РАЗРЫВА
-                this.trackDivergence(symbol, cex.exchange.toUpperCase(), absDiff);
+                this.trackDivergence(symbol, cex.exchange.toUpperCase(), absDiff); // ОТСЛЕЖИВАНИЕ РАЗРЫВА
             }
 
-            // Сортируем по абсолютной разнице
-            divergences.sort((a, b) => b.absDiff - a.absDiff);
+            divergences.sort((a, b) => b.absDiff - a.absDiff); // Сортируем по абсолютной разнице
 
-            // Формируем строку вывода
             const divergenceStrings = divergences
-                .map(d => {
+                .map(d => { // Формируем строку вывода
                     const emoji = d.diffPercent > 0 ? '📈' : '📉';
                     const profitEmoji = d.netProfit > 0 ? '🟢' : '🔴';
                     const profitStr = d.netProfit > 0 ? `+${d.netProfit.toFixed(2)}` : d.netProfit.toFixed(2);
@@ -231,9 +211,8 @@ class Orchestrator {
 
             logger.info(`💹 ${symbol}: ${divergenceStrings}`);
 
-            // Если есть сигнал >1.5%, дополнительно логируем
             const significantSignals = divergences.filter(d => d.absDiff >= 10);
-            if (significantSignals.length > 0) {
+            if (significantSignals.length > 0) { // Если есть сигнал >1.5%, дополнительно логируем
                 logger.signal(`🔥 СИГНАЛ ${symbol}:`, significantSignals.map(s => ({
                     exchange: s.exchange,
                     diffPercent: s.diffPercent.toFixed(2) + '%',
@@ -246,18 +225,16 @@ class Orchestrator {
         }
     }
 
-    // Метод для отслеживания разрывов
-    trackDivergence(symbol, exchange, diffPercent) {
+    trackDivergence(symbol, exchange, diffPercent) { // Метод для отслеживания разрывов
         const absDiff = Math.abs(diffPercent);
         const key = `${symbol}:${exchange}`;
         const direction = diffPercent > 0 ? 'DEX_HIGHER' : 'CEX_HIGHER';
         const timestamp = Date.now();
 
-        // Получаем или создаем активный разрыв
-        let divergence = this.activeDivergences?.get(key);
 
-        if (!divergence && absDiff >= 1.5) {
-            // НАЧАЛО нового разрыва
+        let divergence = this.activeDivergences?.get(key); // Получаем или создаем активный разрыв
+
+        if (!divergence && absDiff >= 1.5) { // НАЧАЛО нового разрыва
             divergence = {
                 symbol,
                 exchange,
@@ -272,8 +249,7 @@ class Orchestrator {
             if (!this.activeDivergences) this.activeDivergences = new Map();
             this.activeDivergences.set(key, divergence);
 
-            // Уведомление о начале разрыва
-            divergenceTracker.onDivergenceStart({
+            divergenceTracker.onDivergenceStart({ // Уведомление о начале разрыва
                 symbol,
                 direction,
                 spread: absDiff,
@@ -281,29 +257,21 @@ class Orchestrator {
             });
 
         } else if (divergence) {
-            // ОБНОВЛЕНИЕ разрыва
-            const previousSpread = divergence.lastSpread;
-            const startSpread = divergence.startSpread;
-            const collapsePercent = ((startSpread - absDiff) / startSpread) * 100;
-
             divergence.lastSpread = absDiff;
             divergence.maxSpread = Math.max(divergence.maxSpread, absDiff);
 
-            // Отправляем обновление в tracker
-            divergenceTracker.onDivergenceUpdate({
+            divergenceTracker.onDivergenceUpdate({ // Отправляем обновление в tracker
                 symbol,
                 direction,
                 spread: absDiff,
                 timestamp
             });
 
-            // Если разрыв схлопнулся до 1% или меньше - закрываем
-            if (absDiff <= 1.0 && divergence.endTime === undefined) {
+            if (absDiff <= 1.5 && divergence.endTime === undefined) { // Если разрыв схлопнулся до 1% или меньше - закрываем
                 divergence.endTime = timestamp;
                 divergence.endSpread = absDiff;
 
-                // Уведомление о конце разрыва
-                divergenceTracker.onDivergenceEnd({
+                divergenceTracker.onDivergenceEnd({ // Уведомление о конце разрыва
                     symbol,
                     direction,
                     duration: (timestamp - divergence.startTime) / 1000,

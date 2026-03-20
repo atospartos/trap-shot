@@ -10,7 +10,7 @@ class DivergenceTracker {
             { name: 'collapse_almost', threshold: 90 }
         ];
         
-        this.collapseReserve = 1.0; // 1% запас
+        this.collapseReserve = 2.0; // 2% запас
         
         this.setupEventListeners();
     }
