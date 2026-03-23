@@ -161,7 +161,7 @@ class ContractResolver {
         };
     }
 
-    static formatTokenEntry(symbol, addresses, exchange = 'gateio') {
+    static formatTokenEntry(symbol, addresses, exchange) {
         let dexStr = '';
         if (Object.keys(addresses).length === 0) {
             dexStr = '{}';
@@ -174,7 +174,7 @@ class ContractResolver {
         return `    {\n        symbol: "${symbol}",\n        dex: ${dexStr},\n        cex: {\n            ${exchange}: "${symbol}/USDT"\n        }\n    }`;
     }
 
-    async updateFromFile(inputFile, outputPath = './config/tokens.js', exchange = 'gateio') {
+    async updateFromFile(inputFile, outputPath, exchange) {
         const newTokensList = ContractResolver.readTokensFromFile(inputFile);
         const existingTokens = ContractResolver.readExistingTokens(outputPath);
         const existingSymbols = existingTokens.map(t => t.symbol);

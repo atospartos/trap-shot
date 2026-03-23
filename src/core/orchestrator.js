@@ -1,8 +1,10 @@
 const logger = require('./logger');
+const eventEmitter = require('./eventEmitter');
 const dexMonitor = require('../dex/monitor');
 const cexMonitor = require('../cex/monitor');
 const telegram = require('../notifier/telegram');
 const divergenceTracker = require('../notifier/divergenceTracker');
+const statistics = require('../analyzer/statistics');
 
 class Orchestrator {
     constructor() {
@@ -91,22 +93,18 @@ class Orchestrator {
         const cycleDuration = Date.now() - this.stats.cycleStartTime;
         this.stats.cyclesCompleted++;
         this.stats.tokensProcessed += successCount;
-
-        logger.info(`\n✅ === ЦИКЛ ${this.stats.cyclesCompleted} ЗАВЕРШЕН ===`);
+        eventEmitter.emit('cycle:completed', cycleDuration);
         logger.info(`📊 Успешно: ${successCount}/${this.tokens.length} токенов`);
         logger.info(`⏱️  Длительность: ${cycleDuration}ms (${(cycleDuration / 1000).toFixed(1)}с)`);
-        this.logStats();
     }
 
     async processToken(token) {
-        const tokenStartTime = Date.now();
 
-        logger.info(`📊 [${token.symbol}] Запуск...`);
+        const tokenStartTime = Date.now();
 
         try {
 
             const dexPromise = this.getDexData(token);// Получаем DEX данные
-
             const cexPromises = []; // Получаем CEX данные с разных бирж (все параллельно)
 
             if (token.cex?.mexc) {
@@ -133,7 +131,7 @@ class Orchestrator {
                 this.analyzeTokenData(token.symbol, dexData, cexData); // Анализируем если есть данные
 
                 const duration = Date.now() - tokenStartTime;
-                logger.info(`✅ [${token.symbol}] Обработан за ${duration}ms`);
+                logger.debug(`✅ [${token.symbol}] Обработан за ${duration}ms`);
                 return true;
             } else {
                 logger.info(`⏩ [${token.symbol}] Недостаточно данных (DEX: ${!!dexData}, CEX: ${cexData.length})`);
@@ -177,123 +175,286 @@ class Orchestrator {
 
     analyzeTokenData(symbol, dexData, cexData) {
         try {
+            // Защита от undefined
+            if (!dexData || dexData.priceUsd === undefined || dexData.priceUsd === null) {
+                logger.debug(`⏩ ${symbol}: нет DEX цены`);
+                return;
+            }
+
+            const dexPrice = parseFloat(dexData.priceUsd);
+            if (isNaN(dexPrice)) {
+                logger.debug(`⏩ ${symbol}: невалидная DEX цена: ${dexData.priceUsd}`);
+                return;
+            }
 
             const divergences = [];
 
             for (const cex of cexData) {
+                if (!cex || cex.price === undefined || cex.price === null) {
+                    logger.debug(`⏩ ${symbol}: нет CEX цены для ${cex?.exchange}`);
+                    continue;
+                }
 
-                const diffPercent = ((dexData.priceUsd - cex.price) / cex.price) * 100;
+                const cexPrice = parseFloat(cex.price);
+                if (isNaN(cexPrice)) {
+                    logger.debug(`⏩ ${symbol}: невалидная CEX цена для ${cex.exchange}: ${cex.price}`);
+                    continue;
+                }
+
+                const diffPercent = ((dexPrice - cexPrice) / cexPrice) * 100;
                 const absDiff = Math.abs(diffPercent);
-                const netProfit = absDiff - 0.4; // минус комиссии 0.4%
+                const netProfit = absDiff - 0.4;
 
                 divergences.push({
-                    dexPrice: dexData.priceUsd,
-                    cexPrice: cex.price,
+                    dexPrice,
+                    cexPrice,
                     exchange: cex.exchange,
                     diffPercent,
                     absDiff,
                     netProfit
                 });
 
-                this.trackDivergence(symbol, cex.exchange.toUpperCase(), absDiff); // ОТСЛЕЖИВАНИЕ РАЗРЫВА
+                this.trackDivergence(
+                    symbol,
+                    cex.exchange.toUpperCase(),
+                    diffPercent,
+                    dexPrice,
+                    cexPrice
+                );
             }
 
-            divergences.sort((a, b) => b.absDiff - a.absDiff); // Сортируем по абсолютной разнице
+            if (divergences.length === 0) {
+                return;
+            }
 
+            divergences.sort((a, b) => b.absDiff - a.absDiff);
+
+            // БЕЗОПАСНОЕ ФОРМАТИРОВАНИЕ — проверяем каждое значение
             const divergenceStrings = divergences
-                .map(d => { // Формируем строку вывода
+                .map(d => {
+                    // Защита от undefined/null/NaN
+                    if (d.diffPercent === undefined || isNaN(d.diffPercent)) {
+                        return `${d.exchange}: цена невалидна`;
+                    }
+                    if (d.netProfit === undefined || isNaN(d.netProfit)) {
+                        return `${d.exchange}: прибыль невалидна`;
+                    }
+                    if (d.dexPrice === undefined || isNaN(d.dexPrice)) {
+                        return `${d.exchange}: DEX цена невалидна`;
+                    }
+                    if (d.cexPrice === undefined || isNaN(d.cexPrice)) {
+                        return `${d.exchange}: CEX цена невалидна`;
+                    }
+
                     const emoji = d.diffPercent > 0 ? '📈' : '📉';
                     const profitEmoji = d.netProfit > 0 ? '🟢' : '🔴';
                     const profitStr = d.netProfit > 0 ? `+${d.netProfit.toFixed(2)}` : d.netProfit.toFixed(2);
-                    return `dex: ${d.dexPrice}, cex: ${d.cexPrice}, ${d.exchange}: ${emoji} ${d.diffPercent > 0 ? '+' : ''}${d.diffPercent.toFixed(2)}% (${profitEmoji} net ${profitStr}%)`;
+                    const diffStr = d.diffPercent > 0 ? `+${d.diffPercent.toFixed(2)}` : d.diffPercent.toFixed(2);
+
+                    // Используем toFixed с защитой от слишком маленьких/больших чисел
+                    const dexStr = d.dexPrice < 0.000001 ? d.dexPrice.toExponential(6) : d.dexPrice.toFixed(10);
+                    const cexStr = d.cexPrice < 0.000001 ? d.cexPrice.toExponential(6) : d.cexPrice.toFixed(10);
+
+                    return `${d.exchange}: ${emoji} ${diffStr}% (${profitEmoji} net ${profitStr}%) | dex: ${dexStr} cex:${cexStr}`;
                 })
                 .join(' | ');
 
             logger.info(`💹 ${symbol}: ${divergenceStrings}`);
 
-            const significantSignals = divergences.filter(d => d.absDiff >= 10);
-            if (significantSignals.length > 0) { // Если есть сигнал >1.5%, дополнительно логируем
+            const significantSignals = divergences.filter(d => d.absDiff >= 1.5);
+            if (significantSignals.length > 0) {
                 logger.signal(`🔥 СИГНАЛ ${symbol}:`, significantSignals.map(s => ({
                     exchange: s.exchange,
                     diffPercent: s.diffPercent.toFixed(2) + '%',
                     netProfit: s.netProfit.toFixed(2) + '%'
                 })));
+
+                for (const signal of significantSignals) {
+                    eventEmitter.emit('signal:arbitrage', {
+                        symbol,
+                        exchange: signal.exchange,
+                        direction: signal.diffPercent > 0 ? 'DEX_HIGHER' : 'CEX_HIGHER',
+                        diffPercent: signal.diffPercent,
+                        netProfit: signal.netProfit,
+                        dexPrice: signal.dexPrice,
+                        cexPrice: signal.cexPrice,
+                        confidence: this.calculateConfidence(symbol, signal.exchange, signal.absDiff),
+                        timestamp: Date.now()
+                    });
+                }
             }
 
         } catch (error) {
-            logger.error(`❌ Ошибка анализа ${symbol}:`, { error: error.message });
+            logger.error(`❌ Ошибка анализа ${symbol}:`, { error: error.message, stack: error.stack });
         }
     }
 
-    trackDivergence(symbol, exchange, diffPercent) { // Метод для отслеживания разрывов
+    /**
+     * Отслеживание разрывов с полными данными
+     */
+    trackDivergence(symbol, exchange, diffPercent, dexPrice, cexPrice) {
         const absDiff = Math.abs(diffPercent);
         const key = `${symbol}:${exchange}`;
         const direction = diffPercent > 0 ? 'DEX_HIGHER' : 'CEX_HIGHER';
         const timestamp = Date.now();
 
+        let divergence = this.activeDivergences?.get(key);
+        const minTrackSpread = 1.5;
 
-        let divergence = this.activeDivergences?.get(key); // Получаем или создаем активный разрыв
-
-        if (!divergence && absDiff >= 1.5) { // НАЧАЛО нового разрыва
+        if (!divergence && absDiff >= minTrackSpread) {
+            // НАЧАЛО разрыва
             divergence = {
                 symbol,
                 exchange,
                 direction,
                 startTime: timestamp,
+                startDexPrice: dexPrice,
+                startCexPrice: cexPrice,
                 startSpread: absDiff,
-                maxSpread: absDiff,
                 lastSpread: absDiff,
+                lastDexPrice: dexPrice,
+                lastCexPrice: cexPrice,
+                currentSpread: absDiff,
+                currentDexPrice: dexPrice,
+                currentCexPrice: cexPrice,
+                dexMovePercent: 0,
+                cexMovePercent: 0,
                 lastNotified: { start: true }
             };
 
-            if (!this.activeDivergences) this.activeDivergences = new Map();
             this.activeDivergences.set(key, divergence);
 
-            divergenceTracker.onDivergenceStart({ // Уведомление о начале разрыва
+            eventEmitter.emit('divergence:start', {
                 symbol,
+                exchange,
                 direction,
                 spread: absDiff,
-                startTime: timestamp
-            });
-
-        } else if (divergence) {
-            divergence.lastSpread = absDiff;
-            divergence.maxSpread = Math.max(divergence.maxSpread, absDiff);
-
-            divergenceTracker.onDivergenceUpdate({ // Отправляем обновление в tracker
-                symbol,
-                direction,
-                spread: absDiff,
+                dexPrice,
+                cexPrice,
                 timestamp
             });
 
-            if (absDiff <= 1.5 && divergence.endTime === undefined) { // Если разрыв схлопнулся до 1% или меньше - закрываем
-                divergence.endTime = timestamp;
-                divergence.endSpread = absDiff;
+            logger.info(`🔴 НАЧАЛО РАЗРЫВА ${symbol} ${exchange}`, {
+                spread: `${absDiff.toFixed(2)}%`,
+                dex: `$${dexPrice}`,
+                cex: `$${cexPrice}`,
+                direction
+            });
 
-                divergenceTracker.onDivergenceEnd({ // Уведомление о конце разрыва
-                    symbol,
-                    direction,
-                    duration: (timestamp - divergence.startTime) / 1000,
-                    maxSpread: divergence.maxSpread,
+        } else if (divergence) {
+            // Обновляем текущие значения
+            divergence.lastSpread = absDiff;
+            divergence.lastDexPrice = dexPrice;
+            divergence.lastCexPrice = cexPrice;
+            divergence.currentSpread = absDiff;
+            divergence.currentDexPrice = dexPrice;
+            divergence.currentCexPrice = cexPrice;
+
+            const dexMovePercent = ((dexPrice - divergence.startDexPrice) / divergence.startDexPrice) * 100;
+            const cexMovePercent = ((cexPrice - divergence.startCexPrice) / divergence.startCexPrice) * 100;
+            const collapsePercent = ((divergence.startSpread - absDiff) / divergence.startSpread) * 100;
+
+            divergence.dexMovePercent = dexMovePercent;
+            divergence.cexMovePercent = cexMovePercent;
+
+            eventEmitter.emit('divergence:update', {
+                symbol,
+                exchange,
+                direction: divergence.direction,
+                spread: absDiff,
+                dexPrice,
+                cexPrice,
+                dexMovePercent,
+                cexMovePercent,
+                collapsePercent,
+                timestamp
+            });
+
+            // Логируем только значительные изменения
+            // if (collapsePercent > 5 && !divergence.causeNotified) {
+            //     const isTrueCollapse = (divergence.direction === 'DEX_HIGHER' && cexMovePercent > 0) ||
+            //                            (divergence.direction === 'CEX_HIGHER' && cexMovePercent < 0);
+
+            //     const causeText = isTrueCollapse 
+            //         ? `✅ ИСТИННОЕ: CEX движется к DEX`
+            //         : `⚠️ ЛОЖНОЕ: DEX движется к CEX (${dexMovePercent > 0 ? 'dex_moving_up' : 'dex_moving_down'})`;
+
+            //     logger.info(`📊 ${symbol} ${exchange}: ${causeText}`, {
+            //         dexMove: `${dexMovePercent > 0 ? '+' : ''}${dexMovePercent.toFixed(2)}%`,
+            //         cexMove: `${cexMovePercent > 0 ? '+' : ''}${cexMovePercent.toFixed(2)}%`,
+            //         collapse: `${collapsePercent.toFixed(1)}%`
+            //     });
+
+            divergence.causeNotified = true;
+
+            // Проверяем, не пора ли закрыть разрыв
+            // При закрытии разрыва:
+            if (absDiff <= 1.5 && divergence.endTime === undefined) {
+                const now = Date.now();
+                divergence.endTime = now;
+                divergence.endSpread = absDiff;
+                divergence.currentSpread = absDiff;  // ← ДОБАВИТЬ!
+
+                const duration = (now - divergence.startTime) / 1000;
+                const finalCollapse = ((divergence.startSpread - absDiff) / divergence.startSpread) * 100;
+
+                // Логируем перед отправкой
+                logger.debug(`📊 Закрытие разрыва ${symbol} ${exchange}:`, {
+
                     endSpread: absDiff,
-                    endTime: timestamp
+                    finalCollapse,
+                    duration
                 });
 
+                eventEmitter.emit('divergence:end', {
+                    symbol,
+                    exchange,
+                    direction: divergence.direction,
+                    duration,
+                    endSpread: absDiff,
+                    finalCollapse,
+                    dexMove: dexMovePercent,
+                    cexMove: cexMovePercent,
+                    endTime: now
+                });
                 this.activeDivergences.delete(key);
             }
         }
+    }
+
+    /**
+     * Расчет уверенности в сигнале
+     */
+    calculateConfidence(symbol, exchange, spread) {
+        // Базовая уверенность от размера спреда
+        let confidence = spread > 20 ? 'high' : spread > 10 ? 'medium' : 'low';
+
+        // Проверяем статистику по токену (если есть)
+        const suitability = divergenceTracker.getTokenSuitability(symbol);
+        if (suitability.hasEnoughData) {
+            // Если токен часто дает ложные разрывы, понижаем уверенность
+            if (suitability.falseCollapseRate > 50) {
+                if (confidence === 'high') confidence = 'medium';
+                else if (confidence === 'medium') confidence = 'low';
+                else confidence = 'very_low';
+            }
+            // Если токен часто дает быстрые истинные разрывы, повышаем
+            else if (suitability.trueCollapseRate > 70 && suitability.fastCollapseRate > 30) {
+                if (confidence === 'medium') confidence = 'high';
+                else if (confidence === 'low') confidence = 'medium';
+            }
+        }
+
+        return confidence;
     }
 
     logStats() {
         const now = Date.now();
         const uptime = ((now - this.stats.startTime) / 1000 / 60).toFixed(1);
 
-        logger.info(`\n📊 === СТАТИСТИКА ===`);
         logger.info(`⏱️  Uptime: ${uptime} минут`);
         logger.info(`🔄 Циклов выполнено: ${this.stats.cyclesCompleted}`);
-        logger.info(`📈 Токенов обработано: ${this.stats.tokensProcessed}`);
-        logger.info(`========================\n`);
+        logger.info(`📈 Токенов обработано: ${this.stats.tokensProcessed}\n`);
     }
 
     delay(ms) {
