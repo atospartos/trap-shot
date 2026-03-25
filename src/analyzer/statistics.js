@@ -1,494 +1,612 @@
+// src/analytics/statistics.js
 const fs = require('fs');
 const path = require('path');
 const logger = require('../core/logger');
 const eventEmitter = require('../core/eventEmitter');
 
-class StatisticsCollector {
+class Statistics {
     constructor() {
-        // Статистика по разрывам
-        this.divergenceStats = {
+        this.signals = {
             total: 0,
-            trueCollapses: 0,
-            falseCollapses: 0,
-            byToken: new Map(),
-            byExchange: new Map(),
-            hourly: new Array(24).fill(0),
-            daily: new Map()
+            active: new Map(), // key: symbol -> signal data
+            history: []
         };
-        
-        // Статистика по сигналам
-        this.signalStats = {
-            total: 0,
-            executed: 0,
-            skipped: 0,
-            byToken: new Map(),
-            byExchange: new Map()
-        };
-        
-        // Статистика по циклам
-        this.cycleStats = {
-            count: 0,
-            totalDuration: 0,
-            minDuration: Infinity,
-            maxDuration: 0,
-            lastCycleTime: null
-        };
-        
-        // Активный разрыв для восстановления данных
-        this.activeDivergence = null;
-        
-        // Путь для сохранения
-        this.dataPath = path.join(__dirname, '/home/mvp-trading-bot/src/analyzer/statistics.json');
-        
-        // Загружаем сохраненную статистику
-        this.loadStats();
-        
-        // Подписываемся на события
-        this.setupEventListeners();
-        
-        // Автосохранение каждые 5 минут
-        setInterval(() => this.saveStats(), 5 * 60 * 1000);
-    }
 
-    setupEventListeners() {
-        // Начало разрыва
-        eventEmitter.on('divergence:start', this.onDivergenceStart.bind(this));
-        
-        // Конец разрыва
-        eventEmitter.on('divergence:end', this.onDivergenceEnd.bind(this));
-        
-        // Сигнал
-        eventEmitter.on('signal:arbitrage', this.onSignal.bind(this));
-        
-        // Обновление из оркестратора (длительность цикла)
-        eventEmitter.on('cycle:completed', this.onCycleComplete.bind(this));
-    }
+        this.tokenStats = new Map();
+        this.allSignals = [];
+        this.priceHistory = new Map();
 
-    /**
-     * Начало разрыва
-     */
-    onDivergenceStart(data) {
-        const { symbol, exchange, spread, timestamp } = data;
-        const hour = new Date(timestamp).getHours();
-        
-        // Общая статистика
-        this.divergenceStats.total++;
-        this.divergenceStats.hourly[hour]++;
-        
-        // По токену
-        if (!this.divergenceStats.byToken.has(symbol)) {
-            this.divergenceStats.byToken.set(symbol, {
-                total: 0,
-                trueCollapses: 0,
-                falseCollapses: 0,
-                maxSpread: 0,
-                avgSpread: 0,
-                spreads: []
-            });
+        this.writeQueues = {
+            signals: Promise.resolve(),
+            summary: Promise.resolve()
+        };
+
+        this.isSaving = {
+            signals: false,
+            summary: false
+        };
+
+        this.config = {
+            // Входные условия
+            minSpreadPercent: 0.7,
+            feePercent: 0.4,
+
+            // Триггеры (от entrySpread)
+            takeProfitReduction: 60,     // №2: схлоп 60% → тейк
+            stopLossFalseReduction: 30,  // №3: ложное схлоп 30% → стоп
+            stopLossIncrease: 30,        // №4: рост спреда 30% → стоп
+            marketMoveThreshold: 1.0,    // №5: движение >1% → стоп
+            spreadStableThreshold: 0.5,  // №5: спред изменился <0.5%
+
+            // Таймаут
+            signalTimeoutMs: 90 * 60 * 1000,
+
+            // Данные
+            dataDir: path.join(process.cwd(), 'data'),
+            maxRecords: 1000,
+            lookbackSeconds: 60
+        };
+
+        this.files = {
+            signals: path.join(this.config.dataDir, 'signals.json'),
+            summary: path.join(this.config.dataDir, 'summary.json')
+        };
+
+        if (!fs.existsSync(this.config.dataDir)) {
+            fs.mkdirSync(this.config.dataDir, { recursive: true });
         }
-        
-        const tokenStat = this.divergenceStats.byToken.get(symbol);
-        tokenStat.total++;
-        tokenStat.spreads.push(spread);
-        tokenStat.maxSpread = Math.max(tokenStat.maxSpread, spread);
-        tokenStat.avgSpread = tokenStat.spreads.reduce((a, b) => a + b, 0) / tokenStat.spreads.length;
-        
-        // По бирже
-        if (!this.divergenceStats.byExchange.has(exchange)) {
-            this.divergenceStats.byExchange.set(exchange, {
-                total: 0,
-                trueCollapses: 0,
-                falseCollapses: 0
-            });
-        }
-        this.divergenceStats.byExchange.get(exchange).total++;
-        
-        // Сохраняем активный разрыв
-        this.activeDivergence = {
-            symbol,
-            exchange,
-            spread,
-            startTime: timestamp,
-            startSpread: spread
-        };
+
+        this.loadSignals();
+        this.setupListeners();
+
+        setInterval(() => this.saveAllData(), 30000);
+        setInterval(() => this.logSummary(), 60000);
+
+        this.saveDebounce = null;
+
+        logger.info('📊 Модуль аналитики инициализирован');
+        logger.info(`   Пороги: тейк -${this.config.takeProfitReduction}% | стоп (ложное схождение) -${this.config.stopLossFalseReduction}% | стоп (ложное расширение) +${this.config.stopLossIncrease}% | стоп (рынок) >${this.config.marketMoveThreshold}%`);
     }
 
-    /**
-     * Конец разрыва
-     */
-    onDivergenceEnd(data) {
-        const { symbol, exchange, duration, maxSpread, endSpread, finalCollapse, isTrue } = data;
-        
-        // Защита от undefined
-        if (symbol === undefined || exchange === undefined) {
-            logger.debug('⚠️ onDivergenceEnd: пропущены symbol или exchange');
+    loadSignals() {
+        try {
+            if (fs.existsSync(this.files.signals)) {
+                const data = fs.readFileSync(this.files.signals, 'utf8');
+                this.allSignals = JSON.parse(data);
+
+                // Восстанавливаем активные сигналы
+                const openSignals = this.allSignals.filter(s => s.type === 'open' && !s.closed);
+                for (const signal of openSignals) {
+                    // Проверяем, не закрыт ли уже
+                    const closed = this.allSignals.some(s => s.type === 'close' && s.id === signal.id);
+                    if (!closed) {
+                        this.signals.active.set(signal.symbol, {
+                            id: signal.id,
+                            symbol: signal.symbol,
+                            direction: signal.direction,
+                            entryTime: signal.timestamp,
+                            entrySpread: signal.entrySpread,
+                            entryNetProfit: signal.entryNetProfit,
+                            entryDexPrice: signal.entryDexPrice,
+                            entryCexPrice: signal.entryCexPrice,
+                            status: 'active',
+                            currentSpread: signal.entrySpread,
+                            currentDexPrice: signal.entryDexPrice,
+                            currentCexPrice: signal.entryCexPrice,
+                            maxSpread: signal.entrySpread,
+                            expansions: signal.expansions || []
+                        });
+                        this.signals.total++;
+                    }
+                }
+
+                const closedSignals = this.allSignals.filter(s => s.type === 'close');
+                this.signals.history = closedSignals.slice(-100);
+
+                logger.info(`📂 Загружено ${this.allSignals.length} сигналов, активных: ${this.signals.active.size}`);
+            }
+        } catch (error) {
+            logger.warn(`Ошибка загрузки: ${error.message}`);
+            this.allSignals = [];
+        }
+    }
+
+    scheduleSave() {
+        if (this.saveDebounce) clearTimeout(this.saveDebounce);
+        this.saveDebounce = setTimeout(() => this.saveAllData(), 3000);
+    }
+
+    async writeToFile(filePath, data, queueName) {
+        this.writeQueues[queueName] = this.writeQueues[queueName]
+            .then(async () => {
+                try {
+                    await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
+                } catch (error) {
+                    logger.error(`Ошибка записи ${queueName}: ${error.message}`);
+                }
+            });
+        return this.writeQueues[queueName];
+    }
+
+    async saveAllData() {
+        if (this.isSaving.signals) return;
+        this.isSaving.signals = true;
+
+        try {
+            await this.writeToFile(this.files.signals, this.allSignals, 'signals');
+            await this.saveSummary();
+        } catch (error) {
+            logger.error(`Ошибка сохранения: ${error.message}`);
+        } finally {
+            this.isSaving.signals = false;
+        }
+    }
+
+    async saveSummary() {
+        if (this.isSaving.summary) return;
+        this.isSaving.summary = true;
+
+        try {
+            const stats = this.getStats();
+            const summary = {
+                ...stats,
+                totalRecords: this.allSignals.length,
+                lastUpdated: Date.now(),
+                lastUpdatedDate: new Date().toISOString(),
+                uptime: process.uptime()
+            };
+            await this.writeToFile(this.files.summary, summary, 'summary');
+        } catch (error) {
+            logger.error(`Ошибка сводки: ${error.message}`);
+        } finally {
+            this.isSaving.summary = false;
+        }
+    }
+
+    updatePriceHistory(symbol, dexPrice, cexPrice, timestamp) {
+        if (!this.priceHistory.has(symbol)) {
+            this.priceHistory.set(symbol, { dex: [], cex: [] });
+        }
+
+        const history = this.priceHistory.get(symbol);
+        history.dex.push({ price: dexPrice, timestamp });
+        history.cex.push({ price: cexPrice, timestamp });
+
+        const cutoff = timestamp - (this.config.lookbackSeconds * 1000);
+        history.dex = history.dex.filter(h => h.timestamp > cutoff);
+        history.cex = history.cex.filter(h => h.timestamp > cutoff);
+    }
+
+    getPriceMove(symbol, entryTime, currentPrice, type) {
+        const history = this.priceHistory.get(symbol);
+        if (!history) return null;
+
+        const prices = type === 'dex' ? history.dex : history.cex;
+        const entryPrice = prices.find(h => h.timestamp >= entryTime)?.price;
+
+        if (!entryPrice) return null;
+
+        return ((currentPrice - entryPrice) / entryPrice) * 100;
+    }
+
+    setupListeners() {
+        eventEmitter.on('data:ready', this.processData.bind(this));
+    }
+
+    processData({ symbol, dexPrice, cexPrice, timestamp }) {
+        if (!dexPrice || !cexPrice) return;
+
+        const spread = ((dexPrice - cexPrice) / cexPrice) * 100;
+        const absSpread = Math.abs(spread);
+        const netProfit = absSpread - this.config.feePercent;
+
+        this.updatePriceHistory(symbol, dexPrice, cexPrice, timestamp);
+        this.updateTokenStats(symbol, absSpread);
+
+        const direction = spread > 0 ? '📈 LONG (DEX > CEX)' : '📉 SHORT (CEX > DEX)';
+        logger.debug(`💹 ${symbol}: ${direction} | спред: ${absSpread.toFixed(2)}% (net ${netProfit.toFixed(2)}%)`);
+
+        const activeSignal = this.signals.active.get(symbol);
+
+        if (activeSignal) {
+            // 🔥 ЕСТЬ АКТИВНЫЙ СИГНАЛ — ОБНОВЛЯЕМ ЕГО
+            this.updateActiveSignal(symbol, activeSignal, absSpread, dexPrice, cexPrice, timestamp, spread);
+        } else {
+            // НЕТ АКТИВНОГО СИГНАЛА — ПРОВЕРЯЕМ УСЛОВИЯ ВХОДА
+            if (absSpread >= this.config.minSpreadPercent && netProfit > 0) {
+                this.createSignal(symbol, spread, absSpread, dexPrice, cexPrice, timestamp);
+            }
+        }
+    }
+
+    createSignal(symbol, spread, absSpread, dexPrice, cexPrice, timestamp) {
+        // Проверяем, нет ли уже активного сигнала
+        if (this.signals.active.has(symbol)) {
+            logger.debug(`${symbol}: уже есть активный сигнал, пропускаем создание нового`);
             return;
         }
-        
-        // Обновляем статистику по токену
-        const tokenStat = this.divergenceStats.byToken.get(symbol);
-        if (tokenStat) {
-            if (isTrue === true) {
-                tokenStat.trueCollapses++;
-                this.divergenceStats.trueCollapses++;
-            } else if (isTrue === false) {
-                tokenStat.falseCollapses++;
-                this.divergenceStats.falseCollapses++;
-            }
-        }
-        
-        // Обновляем статистику по бирже
-        const exchangeStat = this.divergenceStats.byExchange.get(exchange);
-        if (exchangeStat) {
-            if (isTrue === true) {
-                exchangeStat.trueCollapses++;
-            } else if (isTrue === false) {
-                exchangeStat.falseCollapses++;
-            }
-        }
-        
-        // Обновляем дневную статистику
-        const day = new Date().toISOString().split('T')[0];
-        if (!this.divergenceStats.daily.has(day)) {
-            this.divergenceStats.daily.set(day, {
-                total: 0,
-                trueCollapses: 0,
-                falseCollapses: 0
-            });
-        }
-        const dailyStat = this.divergenceStats.daily.get(day);
-        dailyStat.total++;
-        if (isTrue === true) dailyStat.trueCollapses++;
-        if (isTrue === false) dailyStat.falseCollapses++;
-        
-        // Логируем статистику (с защитой от undefined)
-        logger.debug(`📊 Статистика разрыва ${symbol} ${exchange}:`, {
-            duration: duration !== undefined ? `${duration.toFixed(1)}с` : 'N/A',
-            maxSpread: maxSpread !== undefined ? `${maxSpread.toFixed(2)}%` : 'N/A',
-            collapse: finalCollapse !== undefined ? `${finalCollapse.toFixed(1)}%` : 'N/A',
-            isTrue: isTrue === true ? 'истинный' : isTrue === false ? 'ложный' : 'неопределенный'
-        });
-    }
+        const direction = spread > 0 ? 'LONG' : 'SHORT';
 
-    /**
-     * Сигнал
-     */
-    onSignal(data) {
-        const { symbol, exchange, diffPercent, netProfit, confidence } = data;
-        
-        if (!symbol || !exchange) return;
-        
-        this.signalStats.total++;
-        
-        // По токену
-        if (!this.signalStats.byToken.has(symbol)) {
-            this.signalStats.byToken.set(symbol, {
-                total: 0,
-                avgProfit: 0,
-                maxProfit: 0,
-                profits: []
-            });
-        }
-        
-        const tokenStat = this.signalStats.byToken.get(symbol);
-        tokenStat.total++;
-        tokenStat.profits.push(netProfit);
-        tokenStat.maxProfit = Math.max(tokenStat.maxProfit, netProfit);
-        tokenStat.avgProfit = tokenStat.profits.reduce((a, b) => a + b, 0) / tokenStat.profits.length;
-        
-        // По бирже
-        if (!this.signalStats.byExchange.has(exchange)) {
-            this.signalStats.byExchange.set(exchange, {
-                total: 0,
-                avgProfit: 0,
-                maxProfit: 0,
-                profits: []
-            });
-        }
-        
-        const exchangeStat = this.signalStats.byExchange.get(exchange);
-        exchangeStat.total++;
-        exchangeStat.profits.push(netProfit);
-        exchangeStat.maxProfit = Math.max(exchangeStat.maxProfit, netProfit);
-        exchangeStat.avgProfit = exchangeStat.profits.reduce((a, b) => a + b, 0) / exchangeStat.profits.length;
-        
-        logger.debug(`📈 Сигнал ${symbol} ${exchange}: ${diffPercent.toFixed(2)}% (net ${netProfit.toFixed(2)}%), уверенность: ${confidence}`);
-    }
-
-    /**
-     * Завершение цикла
-     */
-    onCycleComplete(duration) {
-        if (duration === undefined || isNaN(duration)) return;
-        
-        this.cycleStats.count++;
-        this.cycleStats.totalDuration += duration;
-        this.cycleStats.minDuration = Math.min(this.cycleStats.minDuration, duration);
-        this.cycleStats.maxDuration = Math.max(this.cycleStats.maxDuration, duration);
-        this.cycleStats.lastCycleTime = Date.now();
-        
-        // Каждые 10 циклов логируем сводку
-        if (this.cycleStats.count % 10 === 0) {
-            this.logSummary();
-        }
-    }
-
-    /**
-     * Получение статистики по токену
-     */
-    getTokenStats(symbol) {
-        const tokenDivergence = this.divergenceStats.byToken.get(symbol);
-        const tokenSignals = this.signalStats.byToken.get(symbol);
-        
-        if (!tokenDivergence) {
-            return {
-                symbol,
-                hasData: false,
-                message: 'Нет данных по этому токену'
-            };
-        }
-        
-        const trueRate = tokenDivergence.total > 0 
-            ? (tokenDivergence.trueCollapses / tokenDivergence.total) * 100 
-            : 0;
-        
-        const avgSignalProfit = tokenSignals?.avgProfit || 0;
-        
-        return {
+        const signal = {
+            id: `${symbol}_${timestamp}`,
             symbol,
-            hasData: true,
-            divergences: {
-                total: tokenDivergence.total,
-                trueCollapses: tokenDivergence.trueCollapses,
-                falseCollapses: tokenDivergence.falseCollapses,
-                trueRate: `${trueRate.toFixed(1)}%`,
-                maxSpread: `${tokenDivergence.maxSpread.toFixed(2)}%`,
-                avgSpread: `${tokenDivergence.avgSpread.toFixed(2)}%`
-            },
-            signals: {
-                total: tokenSignals?.total || 0,
-                avgProfit: `${avgSignalProfit.toFixed(2)}%`,
-                maxProfit: `${tokenSignals?.maxProfit?.toFixed(2) || 0}%`
-            },
-            grade: this.calculateGrade(trueRate, avgSignalProfit)
+            direction,
+            // Исходная точка входа (НЕ МЕНЯЕТСЯ)
+            entryTime: timestamp,
+            entrySpread: absSpread,
+            entryNetProfit: absSpread - this.config.feePercent,
+            entryDexPrice: dexPrice,
+            entryCexPrice: cexPrice,
+            // Динамические данные
+            status: 'active',
+            currentSpread: absSpread,
+            currentDexPrice: dexPrice,
+            currentCexPrice: cexPrice,
+            maxSpread: absSpread,
+            maxSpreadTime: timestamp,
+            expansions: []  // история расширений
         };
+
+        this.signals.active.set(symbol, signal);
+        this.signals.total++;
+
+        const stats = this.tokenStats.get(symbol);
+        if (stats) stats.signals++;
+
+        this.allSignals.push({
+            id: signal.id,
+            symbol,
+            direction,
+            type: 'open',
+            timestamp,
+            date: new Date(timestamp).toISOString(),
+            entrySpread: absSpread,
+            entryNetProfit: absSpread - this.config.feePercent,
+            entryDexPrice: dexPrice,
+            entryCexPrice: cexPrice,
+            closed: false
+        });
+
+        this.scheduleSave();
+
+        const emoji = direction === 'LONG' ? '📈' : '📉';
+        logger.signal(`${emoji} СИГНАЛ ${direction} ${symbol}`, {
+            spread: `${absSpread.toFixed(2)}%`,
+            netProfit: `${(absSpread - this.config.feePercent).toFixed(2)}%`
+        });
+
+        eventEmitter.emit('signal:new', {
+            symbol,
+            direction,
+            spread: absSpread,
+            netProfit: absSpread - this.config.feePercent,
+            dexPrice,
+            cexPrice
+        });
+
+        setTimeout(() => {
+            const current = this.signals.active.get(symbol);
+            if (current && current.id === signal.id) {
+                this.closeSignal(symbol, current.currentSpread, 'timeout', null, null);
+            }
+        }, this.config.signalTimeoutMs);
     }
 
-    /**
-     * Расчет оценки токена
-     */
-    calculateGrade(trueRate, avgProfit) {
-        if (trueRate > 70 && avgProfit > 1) return 'A+';
-        if (trueRate > 60 && avgProfit > 0.5) return 'A';
-        if (trueRate > 50 && avgProfit > 0) return 'B';
-        if (trueRate > 40) return 'C';
-        return 'D';
-    }
+    updateActiveSignal(symbol, signal, currentSpread, dexPrice, cexPrice, timestamp, rawSpread) {
+        const prevSpread = signal.currentSpread;
+        signal.currentSpread = currentSpread;
+        signal.currentDexPrice = dexPrice;
+        signal.currentCexPrice = cexPrice;
 
-    /**
-     * Получение общей сводки
-     */
-    getSummary() {
-        const now = Date.now();
-        const uptime = this.cycleStats.lastCycleTime && this.cycleStats.totalDuration > 0
-            ? ((now - (this.cycleStats.lastCycleTime - this.cycleStats.totalDuration)) / 1000 / 60).toFixed(1)
-            : 0;
-        
-        const totalDivergences = this.divergenceStats.total;
-        const trueRate = totalDivergences > 0 
-            ? (this.divergenceStats.trueCollapses / totalDivergences) * 100 
-            : 0;
-        
-        const avgCycleTime = this.cycleStats.count > 0 
-            ? (this.cycleStats.totalDuration / this.cycleStats.count).toFixed(0)
-            : 0;
-        
-        return {
-            uptime: `${uptime} мин`,
-            cycles: {
-                completed: this.cycleStats.count,
-                avgTime: `${avgCycleTime}ms`,
-                minTime: `${this.cycleStats.minDuration === Infinity ? 0 : this.cycleStats.minDuration}ms`,
-                maxTime: `${this.cycleStats.maxDuration}ms`
-            },
-            divergences: {
-                total: totalDivergences,
-                trueCollapses: this.divergenceStats.trueCollapses,
-                falseCollapses: this.divergenceStats.falseCollapses,
-                trueRate: `${trueRate.toFixed(1)}%`
-            },
-            signals: {
-                total: this.signalStats.total,
-                avgProfit: this.calculateAvgSignalProfit()
-            },
-            topTokens: this.getTopTokens(5),
-            hourlyDistribution: this.getHourlyDistribution()
-        };
-    }
-
-    /**
-     * Расчет средней прибыли по сигналам
-     */
-    calculateAvgSignalProfit() {
-        let totalProfit = 0;
-        let count = 0;
-        
-        for (const [_, stats] of this.signalStats.byToken) {
-            totalProfit += stats.avgProfit * stats.total;
-            count += stats.total;
+        if (currentSpread > signal.maxSpread) {
+            signal.maxSpread = currentSpread;
+            signal.maxSpreadTime = timestamp;
         }
-        
-        return count > 0 ? `${(totalProfit / count).toFixed(2)}%` : '0%';
+
+        // Расчеты от исходной точки входа
+        const spreadChange = ((currentSpread - signal.entrySpread) / signal.entrySpread) * 100;
+        const cexMove = this.getPriceMove(symbol, signal.entryTime, cexPrice, 'cex');
+        const dexMove = this.getPriceMove(symbol, signal.entryTime, dexPrice, 'dex');
+
+        // №1: Расширение правильное (DEX движется ОТ CEX) → ЖДЕМ + ЗАПИСЬ
+        if (signal.direction === 'LONG') {
+            if (spreadChange > 0 && dexMove > 0 && Math.abs(dexMove) > Math.abs(cexMove || 0)) {
+                if (currentSpread > prevSpread) {
+                    signal.expansions.push({
+                        time: timestamp,
+                        spread: currentSpread,
+                        dexPrice,
+                        cexPrice,
+                        dexMove,
+                        cexMove
+                    });
+                    logger.debug(`📈 ${symbol}: расширение правильное (DEX растет), запись ${currentSpread.toFixed(2)}%`);
+                }
+                return; // Ждем
+            }
+        } else {
+            if (spreadChange > 0 && dexMove < 0 && Math.abs(dexMove) > Math.abs(cexMove || 0)) {
+                if (currentSpread > prevSpread) {
+                    signal.expansions.push({
+                        time: timestamp,
+                        spread: currentSpread,
+                        dexPrice,
+                        cexPrice,
+                        dexMove,
+                        cexMove
+                    });
+                    logger.debug(`📈 ${symbol}: расширение правильное (DEX падает), запись ${currentSpread.toFixed(2)}%`);
+                }
+                return; // Ждем
+            }
+        }
+
+        // №2: Истинное схождение → ТЕЙК
+        if (currentSpread <= signal.entrySpread * (1 - this.config.takeProfitReduction / 100)) {
+            if (signal.direction === 'LONG') {
+                if (cexMove > 0.1) {
+                    this.closeSignal(symbol, currentSpread, 'take_profit_true', cexMove, dexMove);
+                    return;
+                } else {
+                    this.closeSignal(symbol, currentSpread, 'stop_loss_false_collapse', cexMove, dexMove);
+                    return;
+                }
+            }
+            if (signal.direction === 'SHORT') {
+                if (cexMove < -0.1) {
+                    this.closeSignal(symbol, currentSpread, 'take_profit_true', cexMove, dexMove);
+                    return;
+                } else {
+                    this.closeSignal(symbol, currentSpread, 'stop_loss_false_collapse', cexMove, dexMove);
+                    return;
+                }
+            }
+        }
+
+        // №3: Ложное схождение → СТОП
+        if (currentSpread <= signal.entrySpread * (1 - this.config.stopLossFalseReduction / 100)) {
+            if (signal.direction === 'LONG' && dexMove < 0) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_false_collapse', cexMove, dexMove);
+                return;
+            }
+            if (signal.direction === 'SHORT' && dexMove > 0) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_false_collapse', cexMove, dexMove);
+                return;
+            }
+        }
+
+        // №4: Расширение ложное → СТОП
+        if (currentSpread >= signal.entrySpread * (1 + this.config.stopLossIncrease / 100)) {
+            if (signal.direction === 'LONG' && dexMove > 0 && cexMove <= dexMove) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_false_expansion', cexMove, dexMove);
+                return;
+            }
+            if (signal.direction === 'SHORT' && dexMove < 0 && cexMove >= dexMove) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_false_expansion', cexMove, dexMove);
+                return;
+            }
+        }
+
+        // №5: Рынок против нас → СТОП
+        const spreadStable = Math.abs(spreadChange) < this.config.spreadStableThreshold;
+
+        if (signal.direction === 'LONG') {
+            if (cexMove < -this.config.marketMoveThreshold &&
+                dexMove < -this.config.marketMoveThreshold &&
+                spreadStable) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_market_drop', cexMove, dexMove);
+                return;
+            }
+        } else {
+            if (cexMove > this.config.marketMoveThreshold &&
+                dexMove > this.config.marketMoveThreshold &&
+                spreadStable) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_market_rise', cexMove, dexMove);
+                return;
+            }
+        }
+
+        // Продолжаем ждать
+        logger.debug(`📊 ${symbol}: ждем, спред ${currentSpread.toFixed(2)}% (изм ${spreadChange.toFixed(1)}%)`);
     }
 
-    /**
-     * Получение топ токенов по успешности
-     */
-    getTopTokens(limit = 5) {
-        const tokens = [];
-        
-        for (const [symbol, stats] of this.divergenceStats.byToken) {
-            const trueRate = stats.total > 0 ? (stats.trueCollapses / stats.total) * 100 : 0;
-            tokens.push({
-                symbol,
-                trueRate: `${trueRate.toFixed(1)}%`,
-                total: stats.total
+    closeSignal(symbol, exitSpread, reason, cexMove, dexMove) {
+        const signal = this.signals.active.get(symbol);
+        if (!signal || signal.status !== 'active') return;
+
+        const exitTime = Date.now();
+        const duration = (exitTime - signal.entryTime) / 1000;
+
+        // Расчет реальной прибыли на CEX
+        let profitPercent = 0;
+        if (signal.direction === 'LONG') {
+            profitPercent = ((signal.currentCexPrice - signal.entryCexPrice) / signal.entryCexPrice) * 100 - this.config.feePercent;
+        } else {
+            profitPercent = ((signal.entryCexPrice - signal.currentCexPrice) / signal.entryCexPrice) * 100 - this.config.feePercent;
+        }
+
+        const isWin = profitPercent > 0;
+
+        // Определяем тип схождения
+        let collapseType = 'unknown';
+        if (reason === 'take_profit_true') collapseType = 'true';
+        else if (reason === 'stop_loss_false_collapse') collapseType = 'false_collapse';
+        else if (reason === 'stop_loss_false_expansion') collapseType = 'false_expansion';
+        else if (reason === 'stop_loss_market_drop' || reason === 'stop_loss_market_rise') collapseType = 'market';
+        else if (reason === 'timeout') collapseType = 'timeout';
+
+        const closedSignal = {
+            id: signal.id,
+            symbol: signal.symbol,
+            direction: signal.direction,
+            type: 'close',
+            timestamp: exitTime,
+            date: new Date(exitTime).toISOString(),
+            // Исходные данные
+            entrySpread: signal.entrySpread,
+            entryNetProfit: signal.entryNetProfit,
+            entryCexPrice: signal.entryCexPrice,
+            entryDexPrice: signal.entryDexPrice,
+            // Выходные данные
+            exitSpread: exitSpread,
+            exitCexPrice: signal.currentCexPrice,
+            exitDexPrice: signal.currentDexPrice,
+            exitProfit: profitPercent,
+            // Максимальный спред
+            maxSpread: signal.maxSpread,
+            maxSpreadTime: signal.maxSpreadTime,
+            expansions: signal.expansions,
+            // Результат
+            reason: reason,
+            collapseType: collapseType,
+            duration: duration,
+            isWin: isWin,
+            cexMove: cexMove || 0,
+            dexMove: dexMove || 0
+        };
+
+        // Обновляем запись открытия
+        const openIndex = this.allSignals.findIndex(s => s.id === signal.id && s.type === 'open');
+        if (openIndex !== -1) {
+            this.allSignals[openIndex].closed = true;
+            this.allSignals[openIndex].maxSpread = signal.maxSpread;
+            this.allSignals[openIndex].expansions = signal.expansions;
+        }
+
+        this.allSignals.push(closedSignal);
+        this.signals.history.unshift(closedSignal);
+        if (this.signals.history.length > 100) this.signals.history.pop();
+        this.signals.active.delete(symbol);
+
+        this.updateTruthStats(symbol, collapseType, isWin, profitPercent);
+        this.scheduleSave();
+
+        const emoji = isWin ? '✅' : '❌';
+        let typeEmoji = '📊';
+        if (collapseType === 'true') typeEmoji = '🎯';
+        else if (collapseType === 'false_collapse') typeEmoji = '⚠️';
+        else if (collapseType === 'false_expansion') typeEmoji = '💀';
+        else if (collapseType === 'market') typeEmoji = '🌊';
+
+        logger.signal(`${emoji} ${typeEmoji} ЗАКРЫТ ${signal.direction} ${symbol}`, {
+            profit: `${profitPercent > 0 ? '+' : ''}${profitPercent.toFixed(2)}%`,
+            duration: `${duration.toFixed(1)}с`,
+            reason: reason,
+            exitSpread: `${exitSpread.toFixed(2)}%`,
+            entrySpread: `${signal.entrySpread.toFixed(2)}%`,
+            cexMove: `${cexMove > 0 ? '+' : ''}${cexMove?.toFixed(2) || 0}%`,
+            dexMove: `${dexMove > 0 ? '+' : ''}${dexMove?.toFixed(2) || 0}%`
+        });
+
+        eventEmitter.emit('signal:close', {
+            symbol: signal.symbol,
+            direction: signal.direction,
+            isWin,
+            profit: profitPercent,
+            duration,
+            reason,
+            exitSpread,
+            collapseType,
+            entrySpread: signal.entrySpread,
+            maxSpread: signal.maxSpread,
+            expansionsCount: signal.expansions.length
+        });
+
+        if (this.allSignals.length > this.config.maxRecords) {
+            this.allSignals = this.allSignals.slice(-this.config.maxRecords);
+        }
+    }
+
+    updateTokenStats(symbol, spread) {
+        if (!this.tokenStats.has(symbol)) {
+            this.tokenStats.set(symbol, {
+                signals: 0,
+                totalSpread: 0,
+                maxSpread: 0,
+                totalProfit: 0,
+                wins: 0,
+                losses: 0,
+                truthStats: {
+                    trueCollapses: 0,
+                    falseCollapses: 0,
+                    falseExpansions: 0,
+                    marketStops: 0,
+                    timeouts: 0
+                }
             });
         }
-        
-        return tokens.sort((a, b) => parseFloat(b.trueRate) - parseFloat(a.trueRate)).slice(0, limit);
+
+        const stats = this.tokenStats.get(symbol);
+        stats.totalSpread += spread;
+        stats.maxSpread = Math.max(stats.maxSpread, spread);
     }
 
-    /**
-     * Получение распределения по часам
-     */
-    getHourlyDistribution() {
-        const max = Math.max(...this.divergenceStats.hourly);
-        return this.divergenceStats.hourly.map((count, hour) => ({
-            hour,
-            count,
-            percent: max > 0 ? (count / max) * 100 : 0
-        }));
+    updateTruthStats(symbol, collapseType, isWin, profit) {
+        const stats = this.tokenStats.get(symbol);
+        if (!stats) return;
+
+        if (collapseType === 'true') stats.truthStats.trueCollapses++;
+        else if (collapseType === 'false_collapse') stats.truthStats.falseCollapses++;
+        else if (collapseType === 'false_expansion') stats.truthStats.falseExpansions++;
+        else if (collapseType === 'market') stats.truthStats.marketStops++;
+        else if (collapseType === 'timeout') stats.truthStats.timeouts++;
+
+        if (isWin) {
+            stats.wins++;
+        } else {
+            stats.losses++;
+        }
+        stats.totalProfit += profit;
     }
 
-    /**
-     * Логирование сводки
-     */
+    getStats() {
+        const closedSignals = this.signals.history.length;
+        const wins = this.signals.history.filter(s => s.isWin).length;
+        const winRate = closedSignals > 0 ? (wins / closedSignals) * 100 : 0;
+        const totalProfit = this.signals.history.reduce((sum, s) => sum + (s.exitProfit || 0), 0);
+
+        return {
+            totalSignals: this.signals.total,
+            activeSignals: this.signals.active.size,
+            closedSignals: closedSignals,
+            wins: wins,
+            losses: closedSignals - wins,
+            winRate: `${winRate.toFixed(1)}%`,
+            totalProfit: `${totalProfit.toFixed(2)}%`,
+            avgProfit: closedSignals > 0 ? `${(totalProfit / closedSignals).toFixed(2)}%` : '0%'
+        };
+    }
+
     logSummary() {
-        const summary = this.getSummary();
-        
-        logger.info('\n📊 ========== СТАТИСТИКА РАБОТЫ ==========');
-        logger.info(`⏱️  Время работы: ${summary.uptime}`);
-        logger.info(`🔄 Циклов: ${summary.cycles.completed} (среднее ${summary.cycles.avgTime})`);
-        logger.info(`📈 Разрывов: ${summary.divergences.total} (истинных ${summary.divergences.trueRate})`);
-        logger.info(`🎯 Сигналов: ${summary.signals.total} (средняя прибыль ${summary.signals.avgProfit})`);
-        logger.info('🏆 Топ токенов:');
-        
-        for (const token of summary.topTokens) {
-            logger.info(`   • ${token.symbol}: ${token.trueRate} (${token.total} разрывов)`);
-        }
-        
-        logger.info('========================================\n');
-    }
+        const stats = this.getStats();
 
-    /**
-     * Сохранение статистики в файл
-     */
-    saveStats() {
-        try {
-            const data = {
-                divergenceStats: {
-                    total: this.divergenceStats.total,
-                    trueCollapses: this.divergenceStats.trueCollapses,
-                    falseCollapses: this.divergenceStats.falseCollapses,
-                    byToken: Array.from(this.divergenceStats.byToken.entries()),
-                    byExchange: Array.from(this.divergenceStats.byExchange.entries()),
-                    hourly: this.divergenceStats.hourly,
-                    daily: Array.from(this.divergenceStats.daily.entries())
-                },
-                signalStats: {
-                    total: this.signalStats.total,
-                    byToken: Array.from(this.signalStats.byToken.entries()),
-                    byExchange: Array.from(this.signalStats.byExchange.entries())
-                },
-                cycleStats: this.cycleStats,
-                lastSaved: Date.now()
-            };
-            
-            const dir = path.dirname(this.dataPath);
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
+        logger.info('\n📊 ========== СТАТИСТИКА ==========');
+        logger.info(`🎯 Сигналов: ${stats.totalSignals} | 🟢 Активных: ${stats.activeSignals} | ✅ Закрытых: ${stats.closedSignals}`);
+        logger.info(`🏆 Винрейт: ${stats.winRate} (${stats.wins}/${stats.closedSignals}) | 💰 Прибыль: ${stats.totalProfit}`);
+
+        logger.info('\n🎯 ТИПЫ ЗАКРЫТИЙ:');
+        for (const [symbol, s] of this.tokenStats.entries()) {
+            if (s.signals > 0) {
+                const total = s.truthStats.trueCollapses + s.truthStats.falseCollapses + s.truthStats.falseExpansions + s.truthStats.marketStops + s.truthStats.timeouts;
+                if (total > 0) {
+                    const trueRate = (s.truthStats.trueCollapses / total) * 100;
+                    const winRate = (s.wins / (s.wins + s.losses)) * 100;
+                    const quality = winRate > 60 ? '✅' : (winRate > 40 ? '⚠️' : '❌');
+                    logger.info(`   ${quality} ${symbol}: винрейт ${winRate.toFixed(0)}% | истинных схождений ${trueRate.toFixed(0)}% (${s.truthStats.trueCollapses}/${total}) | профит ${s.totalProfit.toFixed(2)}%`);
+                }
             }
-            
-            fs.writeFileSync(this.dataPath, JSON.stringify(data, null, 2));
-            logger.debug('📊 Статистика сохранена');
-        } catch (error) {
-            logger.error('❌ Ошибка сохранения статистики:', { error: error.message });
         }
+
+        logger.info('===================================\n');
     }
 
-    /**
-     * Загрузка статистики из файла
-     */
-    loadStats() {
-        try {
-            if (fs.existsSync(this.dataPath)) {
-                const data = JSON.parse(fs.readFileSync(this.dataPath, 'utf8'));
-                
-                this.divergenceStats.total = data.divergenceStats?.total || 0;
-                this.divergenceStats.trueCollapses = data.divergenceStats?.trueCollapses || 0;
-                this.divergenceStats.falseCollapses = data.divergenceStats?.falseCollapses || 0;
-                this.divergenceStats.byToken = new Map(data.divergenceStats?.byToken || []);
-                this.divergenceStats.byExchange = new Map(data.divergenceStats?.byExchange || []);
-                this.divergenceStats.hourly = data.divergenceStats?.hourly || new Array(24).fill(0);
-                this.divergenceStats.daily = new Map(data.divergenceStats?.daily || []);
-                
-                this.signalStats.total = data.signalStats?.total || 0;
-                this.signalStats.byToken = new Map(data.signalStats?.byToken || []);
-                this.signalStats.byExchange = new Map(data.signalStats?.byExchange || []);
-                
-                this.cycleStats = data.cycleStats || this.cycleStats;
-                
-                logger.info(`📊 Загружена статистика: ${this.divergenceStats.total} разрывов, ${this.signalStats.total} сигналов`);
-            }
-        } catch (error) {
-            logger.error('❌ Ошибка загрузки статистики:', { error: error.message });
-        }
-    }
-
-    /**
-     * Сброс статистики
-     */
-    reset() {
-        this.divergenceStats = {
-            total: 0,
-            trueCollapses: 0,
-            falseCollapses: 0,
-            byToken: new Map(),
-            byExchange: new Map(),
-            hourly: new Array(24).fill(0),
-            daily: new Map()
-        };
-        
-        this.signalStats = {
-            total: 0,
-            executed: 0,
-            skipped: 0,
-            byToken: new Map(),
-            byExchange: new Map()
-        };
-        
-        this.cycleStats = {
-            count: 0,
-            totalDuration: 0,
-            minDuration: Infinity,
-            maxDuration: 0,
-            lastCycleTime: null
-        };
-        
-        logger.info('📊 Статистика сброшена');
-        this.saveStats();
+    async shutdown() {
+        logger.info('💾 Сохранение данных...');
+        if (this.saveDebounce) clearTimeout(this.saveDebounce);
+        await this.saveAllData();
+        await Promise.all([this.writeQueues.signals, this.writeQueues.summary]);
+        logger.info('✅ Данные сохранены');
     }
 }
 
-module.exports = new StatisticsCollector();
+module.exports = new Statistics();

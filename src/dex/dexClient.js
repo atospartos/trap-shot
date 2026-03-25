@@ -1,6 +1,6 @@
-const client = require('./client');
+// const client = require('./client');
 const logger = require('../core/logger');
-const eventEmitter = require('../core/eventEmitter');  // ВАЖНО: проверьте этот импорт!
+// const eventEmitter = require('../core/eventEmitter');  // ВАЖНО: проверьте этот импорт!
 
 class DexFetcher {
     /**
@@ -8,16 +8,12 @@ class DexFetcher {
      */
     async fetchTokenData(symbol, chainId, tokenAddress) {
         try {
-            logger.debug(`🔍 DEX анализ для ${symbol} на ${chainId} с адресом ${tokenAddress}`);
-
             const allPools = await this.searchByExactAddress(tokenAddress);
 
             if (!allPools || allPools.length === 0) {
                 logger.warn(`⚠️ Нет пулов для ${symbol} на ${chainId} по адресу ${tokenAddress}`);
                 return null;
             }
-
-            logger.info(`✅ Найдено ${allPools.length} пулов для ${symbol} на ${chainId}`);
 
             const bestPools = this._getBestLiquidityPools(allPools, 3);
 
@@ -26,29 +22,6 @@ class DexFetcher {
                 return null;
             }
 
-            logger.info(`🏆 Топ-3 пула для ${symbol}:`, bestPools.map(p =>
-                `${p.dexId} ${p.baseToken}/${p.quoteToken} ($${p.liquidityUsd})`
-            ));
-
-            // ОТПРАВЛЯЕМ ТОЛЬКО ОДИН РАЗ - лучший пул
-            const bestPool = bestPools[0];
-
-            logger.info(`📤 ОТПРАВКА СОБЫТИЯ dex:poolData для ${symbol} (лучший пул ${bestPool.dexId}/${bestPool.quoteToken})`);
-
-            eventEmitter.emit('dex:poolData', {
-                symbol,
-                chain: chainId,
-                price: bestPool.priceUsd,
-                pool: {
-                    ...bestPool,
-                    liquidityRank: 1,
-                    totalPools: allPools.length,
-                    allPoolsCount: allPools.length
-                },
-                tokenAddress
-            });
-
-            // Дополнительные пулы можно логировать, но не отправлять как события
             if (bestPools.length > 1) {
                 logger.debug(`📊 Дополнительные пулы для ${symbol}:`,
                     bestPools.slice(1).map(p => `${p.dexId} ${p.baseToken}/${p.quoteToken} ($${p.liquidityUsd})`)
@@ -73,7 +46,7 @@ class DexFetcher {
             const axios = require('axios');
             const response = await axios.get(
                 `https://api.dexscreener.com/latest/dex/search?q=${tokenAddress}`,
-                { timeout: 5000 }
+                { timeout: 2000 }
             );
 
             if (response.data && response.data.pairs) {
@@ -95,10 +68,10 @@ class DexFetcher {
     _getBestLiquidityPools(pools, limit = 3) {
         if (!pools || pools.length === 0) return [];
 
-        const poolsWithLiquidity = pools.filter(p => p.liquidityUsd > 100);
+        const poolsWithLiquidity = pools.filter(p => p.liquidityUsd > 50000);
 
         if (poolsWithLiquidity.length === 0) {
-            logger.warn(`⚠️ Все пулы имеют нулевую ликвидность`);
+            logger.warn(`⚠️ Все пулы имеют малую ликвидность`);
             return [];
         }
 

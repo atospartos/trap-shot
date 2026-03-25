@@ -1,38 +1,51 @@
-const client = require('./client');
+// src/cex/monitor.js - исправленная версия
+const cexClient = require('./cexClient');
 const logger = require('../core/logger');
 const eventEmitter = require('../core/eventEmitter');
 
 class CexMonitor {
-    async fetchPrice(tokenSymbol, exchangeName, symbol) {
+    async fetchPrice(tokenSymbol, cexSymbol) {
         try {
-            logger.debug(`📥 CEX запрос для ${tokenSymbol} на ${exchangeName}`);
+            logger.debug(`📥 CEX запрос для ${tokenSymbol} (${cexSymbol})`);
             
-            const ticker = await client.getTicker(exchangeName, symbol);
+            // 🔥 Исправление: передаем cexSymbol (например, "BARD/USDT") в cexClient
+            const ticker = await cexClient.getTicker(cexSymbol);
             
-            if (ticker) {
-                logger.debug(`✅ ${exchangeName}: ${tokenSymbol} цена $${ticker.price}`);
+            if (ticker && ticker.price) {
+                logger.debug(`✅ ${tokenSymbol} цена $${ticker.price}`);
                 
                 // Отправляем событие для обратной совместимости
                 eventEmitter.emit('cex:price', {
                     symbol: tokenSymbol,
-                    exchange: exchangeName,
                     price: ticker.price,
                     volume: ticker.volume,
                     timestamp: Date.now()
                 });
                 
                 return {
-                    exchange: exchangeName,
                     price: ticker.price,
-                    volume: ticker.volume
+                    volume: ticker.volume,
+                    exchange: 'gateio',
+                    symbol: cexSymbol
                 };
             }
             
+            logger.warn(`⚠️ Нет данных для ${tokenSymbol} (${cexSymbol})`);
             return null;
             
         } catch (error) {
-            logger.error(`❌ Ошибка CEX для ${tokenSymbol} на ${exchangeName}:`, { error: error.message });
-            throw error;
+            logger.error(`❌ Ошибка CEX для ${tokenSymbol}: ${error.message}`);
+            return null;  // возвращаем null вместо throw, чтобы не прерывать цикл
+        }
+    }
+    
+    // Добавляем метод для проверки доступности (опционально)
+    async testConnection() {
+        try {
+            const ticker = await cexClient.getTicker('USDT/USDT');
+            return ticker !== null;
+        } catch (error) {
+            return false;
         }
     }
 }

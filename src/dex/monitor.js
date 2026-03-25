@@ -1,13 +1,13 @@
-const fetcher = require('./fetcher');
+const dexClient = require('./dexClient');
 const logger = require('../core/logger');
-const eventEmitter = require('../core/eventEmitter');
+// const eventEmitter = require('../core/eventEmitter');
 
 class DexMonitor {
     async fetchTokenData(symbol, chainId, tokenAddress) {
         try {
             logger.debug(`🔍 DEX запрос для ${symbol} на ${chainId}`);
             
-            const allPools = await fetcher.searchByExactAddress(tokenAddress);
+            const allPools = await dexClient.searchByExactAddress(tokenAddress);
             
             if (!allPools || allPools.length === 0) {
                 logger.debug(`ℹ️ Нет пулов для ${symbol} на ${chainId}`);
@@ -19,14 +19,6 @@ class DexMonitor {
             
             logger.debug(`✅ DEX данные для ${symbol}: ${bestPool.baseToken}/${bestPool.quoteToken} $${bestPool.priceUsd} (ликв. $${bestPool.liquidityUsd})`);
             
-            // Отправляем событие для обратной совместимости
-            eventEmitter.emit('dex:poolData', {
-                symbol,
-                chain: chainId,
-                price: bestPool.priceUsd,
-                pool: bestPool,
-                tokenAddress
-            });
             
             return [bestPool];
             

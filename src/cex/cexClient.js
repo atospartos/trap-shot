@@ -1,3 +1,4 @@
+// src/cex/gateClient.js - небольшая оптимизация
 const axios = require('axios');
 const logger = require('../core/logger');
 
@@ -8,13 +9,23 @@ class GateClient {
 
     async getTicker(symbol) {
         try {
-            // Простой rate limiting
-            // await this._checkRateLimit();
+            // Проверяем, что символ передан
+            if (!symbol) {
+                logger.warn('GateClient: символ не указан');
+                return null;
+            }
             
+            // Gate.io ожидает формат BTC_USDT, а не BTC/USDT
             const gateSymbol = symbol.replace('/', '_');
+            
+            logger.debug(`Gate.io запрос тикера для ${gateSymbol}`);
+            
             const response = await axios.get(
                 `${this.baseUrl}/spot/tickers`,
-                { params: { currency_pair: gateSymbol }, timeout: 2000 }
+                { 
+                    params: { currency_pair: gateSymbol }, 
+                    timeout: 2000 
+                }
             );
             
             if (response.data && response.data[0]) {
@@ -29,16 +40,22 @@ class GateClient {
                     timestamp: Date.now()
                 };
             }
+            
+            logger.debug(`Gate.io: нет данных для ${gateSymbol}`);
             return null;
+            
         } catch (error) {
-            //logger.error(`Gate.io ticker error for ${symbol}:`, error.message);
+            if (error.response) {
+                logger.debug(`Gate.io ошибка ${error.response.status} для ${symbol}`);
+            } else {
+                logger.debug(`Gate.io ошибка: ${error.message}`);
+            }
             return null;
         }
     }
 
     async getOrderBook(symbol, limit = 100) {
         try {
-            // await this._checkRateLimit();
             const gateSymbol = symbol.replace('/', '_');
             const response = await axios.get(
                 `${this.baseUrl}/spot/order_book`,
@@ -46,29 +63,10 @@ class GateClient {
             );
             return response.data;
         } catch (error) {
-            //logger.error(`Gate.io orderbook error for ${symbol}:`, error.message);
+            logger.debug(`Gate.io orderbook error: ${error.message}`);
             return null;
         }
     }
-
-    // async _checkRateLimit() {
-    //     // Простой rate limiter - 20 запросов в секунду
-    //     const now = Date.now();
-    //     if (now - this.lastReset > 1000) {
-    //         this.requestCount = 0;
-    //         this.lastReset = now;
-    //     }
-        
-    //     if (this.requestCount >= 18) { // Оставляем запас
-    //         const waitTime = 1000 - (now - this.lastReset);
-    //         logger.warn(`Rate limit approaching, waiting ${waitTime}ms`);
-    //         await new Promise(resolve => setTimeout(resolve, waitTime));
-    //         this.requestCount = 0;
-    //         this.lastReset = Date.now();
-    //     }
-        
-    //     this.requestCount++;
-    // }
 }
 
 module.exports = new GateClient();
