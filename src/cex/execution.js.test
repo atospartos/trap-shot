@@ -1,0 +1,592 @@
+// src/cex/execution.js
+// require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const logger = require('../core/logger');
+const eventEmitter = require('../core/eventEmitter');
+
+class GateFuturesWS {
+    constructor() {
+        this.ws = null;
+        this.isConnected = false;
+        this.positions = new Map(); // symbol -> position data
+        this.pendingOrders = new Map();
+        this.userId = null;
+        
+        // Конфигурация
+        this.config = {
+            baseUrl: 'wss://fx-ws.gateio.ws/v4/ws/usdt',
+            apiKey: process.env.GATE_API_KEY,
+            apiSecret: process.env.GATE_API_SECRET,
+            userId: process.env.GATE_USER_ID,
+            
+            // Размер позиции
+            basePositionSize: 30,        // USDT
+            maxPositionSize: 90,
+            
+            // Таймауты
+            orderTimeoutMs: 90 * 60 * 1000,
+            
+            // Данные
+            dataDir: path.join(process.cwd(), 'data'),
+            positionsFile: path.join(process.cwd(), 'data', 'positions.json')
+        };
+        
+        this.setupListeners();
+        this.loadPositions();
+        this.connect();
+        
+        // Периодическое сохранение
+        setInterval(() => this.savePositions(), 10000);
+        
+        logger.info('🚀 Gate.io Futures Execution Manager инициализирован');
+    }
+    
+    // ==================== WEBSOCKET СОЕДИНЕНИЕ ====================
+    
+    connect() {
+        const WebSocket = require('ws');
+        
+        // Заголовок для поддержки decimal формата
+        const headers = {
+            'X-Gate-Size-Decimal': '1'
+        };
+        
+        this.ws = new WebSocket(this.config.baseUrl, { headers });
+        
+        this.ws.on('open', () => {
+            logger.info('🔌 WebSocket подключен к Gate.io Futures');
+            this.isConnected = true;
+            
+            // Подписываемся на тикеры (публичный канал)
+            this.subscribeTickers();
+            
+            // Аутентификация и подписка на приватные каналы
+            this.authenticateAndSubscribe();
+        });
+        
+        this.ws.on('message', (data) => {
+            this.handleMessage(data);
+        });
+        
+        this.ws.on('error', (error) => {
+            logger.error(`WebSocket ошибка: ${error.message}`);
+        });
+        
+        this.ws.on('close', () => {
+            logger.warn('WebSocket закрыт, переподключение через 5 сек...');
+            this.isConnected = false;
+            setTimeout(() => this.connect(), 5000);
+        });
+    }
+    
+    // ==================== ПОДПИСКИ ====================
+    
+    subscribeTickers() {
+        const symbols = this.getAllSymbols();
+        
+        const request = {
+            time: Math.floor(Date.now() / 1000),
+            channel: 'futures.tickers',
+            event: 'subscribe',
+            payload: symbols
+        };
+        
+        this.ws.send(JSON.stringify(request));
+        logger.info(`📊 Подписка на тикеры: ${symbols.join(', ')}`);
+    }
+    
+    authenticateAndSubscribe() {
+        // Аутентификация через подписку на приватный канал
+        const timestamp = Math.floor(Date.now() / 1000);
+        const channel = 'futures.orders';
+        const event = 'subscribe';
+        
+        // Генерация подписи
+        const signString = `channel=${channel}&event=${event}&time=${timestamp}`;
+        const sign = crypto
+            .createHmac('sha512', this.config.apiSecret)
+            .update(signString)
+            .digest('hex');
+        
+        const authRequest = {
+            id: Date.now(),
+            time: timestamp,
+            channel: channel,
+            event: event,
+            payload: [this.config.userId, '!all'],  // !all = все контракты
+            auth: {
+                method: 'api_key',
+                KEY: this.config.apiKey,
+                SIGN: sign
+            }
+        };
+        
+        this.ws.send(JSON.stringify(authRequest));
+        logger.info('🔐 Аутентификация и подписка на ордера');
+        
+        // Подписка на позиции
+        const posRequest = {
+            id: Date.now() + 1,
+            time: timestamp,
+            channel: 'futures.positions',
+            event: 'subscribe',
+            payload: [this.config.userId, '!all'],
+            auth: {
+                method: 'api_key',
+                KEY: this.config.apiKey,
+                SIGN: sign
+            }
+        };
+        
+        this.ws.send(JSON.stringify(posRequest));
+        logger.info('📊 Подписка на позиции');
+    }
+    
+    // ==================== ОБРАБОТКА СООБЩЕНИЙ ====================
+    
+    handleMessage(data) {
+        try {
+            const parsed = JSON.parse(data);
+            
+            if (parsed.channel === 'futures.tickers' && parsed.event === 'update') {
+                this.handleTickerUpdate(parsed.result);
+            }
+            
+            if (parsed.channel === 'futures.orders' && parsed.event === 'update') {
+                this.handleOrderUpdate(parsed.result);
+            }
+            
+            if (parsed.channel === 'futures.positions' && parsed.event === 'update') {
+                this.handlePositionUpdate(parsed.result);
+            }
+            
+            // Пинг-понг
+            if (parsed.channel === 'futures.pong') {
+                logger.debug('🏓 Pong received');
+            }
+            
+        } catch (error) {
+            logger.error(`Ошибка обработки сообщения: ${error.message}`);
+        }
+    }
+    
+    handleTickerUpdate(tickers) {
+        for (const ticker of tickers) {
+            const symbol = ticker.contract.replace('_USDT', '').replace('_USDT', '');
+            const price = parseFloat(ticker.last);
+            
+            // Проверяем, есть ли активная позиция по этому символу
+            const position = this.positions.get(symbol);
+            if (position && position.status === 'active') {
+                this.checkPriceLevels(symbol, position, price);
+            }
+        }
+    }
+    
+    handleOrderUpdate(orders) {
+        for (const order of orders) {
+            const orderId = order.id;
+            const status = order.status; // open, finished, cancelled
+            
+            // Ищем связанную позицию
+            for (const [symbol, position] of this.positions) {
+                if (position.orders?.entry?.id === orderId) {
+                    if (status === 'finished') {
+                        logger.info(`✅ Ордер на вход ${symbol} исполнен по ${order.price}`);
+                        position.status = 'active';
+                        position.entryPrice = parseFloat(order.price);
+                        position.entryTime = order.create_time_ms;
+                        position.orders.entry.status = 'filled';
+                        this.placeTakeProfitStopLoss(symbol, position);
+                    }
+                    if (status === 'cancelled') {
+                        logger.warn(`❌ Ордер на вход ${symbol} отменен`);
+                        this.positions.delete(symbol);
+                    }
+                }
+                
+                if (position.orders?.takeProfit?.id === orderId && status === 'finished') {
+                    logger.info(`🎯 Тейк-профит ${symbol} сработал по ${order.price}`);
+                    this.closePosition(symbol, 'take_profit');
+                }
+                
+                if (position.orders?.stopLoss?.id === orderId && status === 'finished') {
+                    logger.warn(`🛑 Стоп-лосс ${symbol} сработал по ${order.price}`);
+                    this.closePosition(symbol, 'stop_loss');
+                }
+            }
+        }
+    }
+    
+    handlePositionUpdate(positions) {
+        // Обновление информации о позициях
+        for (const pos of positions) {
+            const symbol = pos.contract.replace('_USDT', '');
+            const size = parseFloat(pos.size);
+            
+            if (size === 0) {
+                // Позиция закрыта
+                if (this.positions.has(symbol)) {
+                    logger.info(`📉 Позиция ${symbol} закрыта на бирже`);
+                    this.positions.delete(symbol);
+                }
+            }
+        }
+    }
+    
+    // ==================== УПРАВЛЕНИЕ ПОЗИЦИЯМИ ====================
+    
+    async placeLimitOrder(symbol, side, price, size) {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const channel = 'futures.order_place';
+        const event = 'api';
+        
+        const signString = `channel=${channel}&event=${event}&time=${timestamp}`;
+        const sign = crypto
+            .createHmac('sha512', this.config.apiSecret)
+            .update(signString)
+            .digest('hex');
+        
+        const request = {
+            id: Date.now(),
+            time: timestamp,
+            channel: channel,
+            event: event,
+            auth: {
+                method: 'api_key',
+                KEY: this.config.apiKey,
+                SIGN: sign
+            },
+            payload: [{
+                text: `t-bot-${Date.now()}`,
+                contract: `${symbol}_USDT`,
+                size: size.toString(),
+                price: price.toString(),
+                tif: 'gtc'
+            }]
+        };
+        
+        return new Promise((resolve) => {
+            this.ws.send(JSON.stringify(request));
+            
+            // Сохраняем промис для ожидания ответа
+            const responseHandler = (data) => {
+                const parsed = JSON.parse(data);
+                if (parsed.id === request.id) {
+                    this.ws.removeListener('message', responseHandler);
+                    resolve(parsed.result);
+                }
+            };
+            
+            this.ws.on('message', responseHandler);
+            
+            // Таймаут
+            setTimeout(() => {
+                this.ws.removeListener('message', responseHandler);
+                resolve(null);
+            }, 5000);
+        });
+    }
+    
+    async placeMarketOrder(symbol, side, size) {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const channel = 'futures.order_place';
+        const event = 'api';
+        
+        const signString = `channel=${channel}&event=${event}&time=${timestamp}`;
+        const sign = crypto
+            .createHmac('sha512', this.config.apiSecret)
+            .update(signString)
+            .digest('hex');
+        
+        const request = {
+            id: Date.now(),
+            time: timestamp,
+            channel: channel,
+            event: event,
+            auth: {
+                method: 'api_key',
+                KEY: this.config.apiKey,
+                SIGN: sign
+            },
+            payload: [{
+                text: `t-bot-close-${Date.now()}`,
+                contract: `${symbol}_USDT`,
+                size: size.toString(),
+                price: '0',
+                tif: 'ioc'
+            }]
+        };
+        
+        return new Promise((resolve) => {
+            this.ws.send(JSON.stringify(request));
+            
+            const responseHandler = (data) => {
+                const parsed = JSON.parse(data);
+                if (parsed.id === request.id) {
+                    this.ws.removeListener('message', responseHandler);
+                    resolve(parsed.result);
+                }
+            };
+            
+            this.ws.on('message', responseHandler);
+            setTimeout(() => {
+                this.ws.removeListener('message', responseHandler);
+                resolve(null);
+            }, 5000);
+        });
+    }
+    
+    async cancelOrder(orderId) {
+        const timestamp = Math.floor(Date.now() / 1000);
+        const channel = 'futures.order_cancel';
+        const event = 'api';
+        
+        const signString = `channel=${channel}&event=${event}&time=${timestamp}`;
+        const sign = crypto
+            .createHmac('sha512', this.config.apiSecret)
+            .update(signString)
+            .digest('hex');
+        
+        const request = {
+            id: Date.now(),
+            time: timestamp,
+            channel: channel,
+            event: event,
+            auth: {
+                method: 'api_key',
+                KEY: this.config.apiKey,
+                SIGN: sign
+            },
+            payload: [orderId]
+        };
+        
+        this.ws.send(JSON.stringify(request));
+    }
+    
+    // ==================== ОБРАБОТКА СИГНАЛОВ ====================
+    
+    setupListeners() {
+        eventEmitter.on('signal:open', this.onOpenSignal.bind(this));
+        eventEmitter.on('signal:add', this.onAddSignal.bind(this));
+        eventEmitter.on('signal:close', this.onCloseSignal.bind(this));
+    }
+    
+    async onOpenSignal(data) {
+        const { symbol, direction, entryCexPrice, targetPrice, entrySpread, timestamp } = data;
+        
+        if (this.positions.has(symbol)) {
+            logger.warn(`${symbol}: позиция уже открыта`);
+            return;
+        }
+        
+        const positionSize = this.calculatePositionSize(symbol);
+        if (positionSize === 0) return;
+        
+        const levels = this.calculateLevels(entryCexPrice, targetPrice, direction);
+        
+        logger.info(`📈 ОТКРЫТИЕ ПОЗИЦИИ ${direction} ${symbol}`, {
+            entryPrice: entryCexPrice,
+            targetPrice: targetPrice,
+            takeProfit: levels.takeProfit,
+            stopLoss: levels.stopLoss,
+            size: positionSize
+        });
+        
+        // Выставляем лимитный ордер на вход
+        const side = direction === 'LONG' ? 'buy' : 'sell';
+        const order = await this.placeLimitOrder(symbol, side, entryCexPrice, positionSize);
+        
+        if (order && order.status === 'success') {
+            const position = {
+                id: `${symbol}_${timestamp}`,
+                symbol,
+                direction,
+                status: 'pending',
+                entryPrice: entryCexPrice,
+                targetPrice: targetPrice,
+                entrySpread: entrySpread,
+                entryTime: timestamp,
+                positionSize: positionSize,
+                levels: levels,
+                averageCount: 0,
+                averagePrices: [entryCexPrice],
+                orders: {
+                    entry: { id: order.id, status: 'pending' }
+                },
+                expiresAt: timestamp + this.config.orderTimeoutMs
+            };
+            
+            this.positions.set(symbol, position);
+            this.savePositions();
+        }
+    }
+    
+    async onAddSignal(data) {
+        const { symbol, direction, addPrice, addSpread, averageCount, timestamp } = data;
+        
+        const position = this.positions.get(symbol);
+        if (!position || position.status !== 'active') return;
+        
+        if (position.averageCount >= 2) {
+            logger.warn(`${symbol}: лимит усреднений достигнут`);
+            return;
+        }
+        
+        const addSize = position.positionSize * 0.5;
+        const side = direction === 'LONG' ? 'buy' : 'sell';
+        
+        const order = await this.placeLimitOrder(symbol, side, addPrice, addSize);
+        
+        if (order && order.status === 'success') {
+            position.averageCount = averageCount;
+            position.averagePrices.push(addPrice);
+            position.positionSize += addSize;
+            
+            const avgPrice = position.averagePrices.reduce((a, b) => a + b, 0) / position.averagePrices.length;
+            position.levels = this.calculateLevels(avgPrice, position.targetPrice, direction);
+            
+            this.savePositions();
+            logger.info(`➕ Усреднение ${symbol} #${averageCount} по ${addPrice}`);
+        }
+    }
+    
+    async onCloseSignal(data) {
+        const { symbol, direction, isWin, profit, duration, reason, exitPrice, avgEntryPrice } = data;
+        
+        const position = this.positions.get(symbol);
+        if (!position) return;
+        
+        await this.closePosition(symbol, reason);
+    }
+    
+    async closePosition(symbol, reason) {
+        const position = this.positions.get(symbol);
+        if (!position) return;
+        
+        // Отменяем все активные ордера
+        if (position.orders?.entry) await this.cancelOrder(position.orders.entry.id);
+        if (position.orders?.takeProfit) await this.cancelOrder(position.orders.takeProfit.id);
+        if (position.orders?.stopLoss) await this.cancelOrder(position.orders.stopLoss.id);
+        
+        // Закрываем позицию рыночным ордером
+        const side = position.direction === 'LONG' ? 'sell' : 'buy';
+        const closeOrder = await this.placeMarketOrder(symbol, side, position.positionSize);
+        
+        if (closeOrder) {
+            logger.info(`🔒 Позиция ${symbol} закрыта по причине: ${reason}`);
+            this.positions.delete(symbol);
+            this.savePositions();
+        }
+    }
+    
+    async placeTakeProfitStopLoss(symbol, position) {
+        const { takeProfit, stopLoss } = position.levels;
+        const size = position.positionSize;
+        const side = position.direction === 'LONG' ? 'sell' : 'buy';
+        
+        const tpOrder = await this.placeLimitOrder(symbol, side, takeProfit, size);
+        const slOrder = await this.placeLimitOrder(symbol, side, stopLoss, size);
+        
+        if (tpOrder) position.orders.takeProfit = { id: tpOrder.id, status: 'pending' };
+        if (slOrder) position.orders.stopLoss = { id: slOrder.id, status: 'pending' };
+        
+        logger.info(`🎯 Выставлены тейк (${takeProfit}) и стоп (${stopLoss}) для ${symbol}`);
+        this.savePositions();
+    }
+    
+    // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================
+    
+    getAllSymbols() {
+        try {
+            const tokens = require('../data/tokens');
+            return tokens.map(t => `${t.symbol}_USDT`);
+        } catch (error) {
+            return [];
+        }
+    }
+    
+    calculatePositionSize(symbol) {
+        // TODO: получить лимиты из tokens.js
+        return this.config.basePositionSize;
+    }
+    
+    calculateLevels(entryPrice, targetPrice, direction) {
+        const distance = Math.abs(targetPrice - entryPrice);
+        const takeProfitDistance = distance * 0.8;
+        const stopLossDistance = distance * 0.25;
+        
+        if (direction === 'LONG') {
+            return {
+                takeProfit: entryPrice + takeProfitDistance,
+                stopLoss: entryPrice - stopLossDistance
+            };
+        } else {
+            return {
+                takeProfit: entryPrice - takeProfitDistance,
+                stopLoss: entryPrice + stopLossDistance
+            };
+        }
+    }
+    
+    checkPriceLevels(symbol, position, currentPrice) {
+        // Проверка на достижение тейка или стопа (на всякий случай, если ордера не сработали)
+        if (position.direction === 'LONG') {
+            if (currentPrice >= position.levels.takeProfit) {
+                this.closePosition(symbol, 'take_profit_price_reached');
+            }
+            if (currentPrice <= position.levels.stopLoss) {
+                this.closePosition(symbol, 'stop_loss_price_reached');
+            }
+        } else {
+            if (currentPrice <= position.levels.takeProfit) {
+                this.closePosition(symbol, 'take_profit_price_reached');
+            }
+            if (currentPrice >= position.levels.stopLoss) {
+                this.closePosition(symbol, 'stop_loss_price_reached');
+            }
+        }
+    }
+    
+    loadPositions() {
+        try {
+            if (fs.existsSync(this.config.positionsFile)) {
+                const data = fs.readFileSync(this.config.positionsFile, 'utf8');
+                const saved = JSON.parse(data);
+                for (const pos of saved.positions || []) {
+                    if (pos.status === 'active' || pos.status === 'pending') {
+                        this.positions.set(pos.symbol, pos);
+                    }
+                }
+                logger.info(`📂 Загружено ${this.positions.size} позиций`);
+            }
+        } catch (error) {
+            logger.warn(`Ошибка загрузки: ${error.message}`);
+        }
+    }
+    
+    savePositions() {
+        try {
+            const data = {
+                positions: Array.from(this.positions.values()),
+                lastUpdated: Date.now()
+            };
+            fs.writeFileSync(this.config.positionsFile, JSON.stringify(data, null, 2));
+        } catch (error) {
+            logger.error(`Ошибка сохранения: ${error.message}`);
+        }
+    }
+    
+    async shutdown() {
+        logger.info('🛑 Остановка Execution Manager...');
+        for (const [symbol, position] of this.positions) {
+            await this.closePosition(symbol, 'shutdown');
+        }
+        if (this.ws) this.ws.close();
+        logger.info('✅ Execution Manager остановлен');
+    }
+}
+
+module.exports = new GateFuturesWS();

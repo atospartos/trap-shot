@@ -9,7 +9,7 @@ async function main() {
     });
     
     // Читаем токены из файла и генерируем tokens.js
-    await resolver.updateFromFile('/home/user/app/bot/src/data/tokens.txt', '/home/user/app/bot/src/data/tokens.js', 'gateio');
+    await resolver.updateFromFile('/home/user/app/bot/data/tokens.txt', '/home/user/app/bot/data/tokens.js', 'gateio');
 }
 
 main().catch(console.error);

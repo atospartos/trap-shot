@@ -1,0 +1,14 @@
+{
+  "ignore": [
+    "data/",
+    "logs/",
+    "*.json",
+    "*.log"
+  ],
+  "watch": [
+    "src/",
+    "index.js"
+  ],
+  "ext": "js",
+  "verbose": false
+}

@@ -1,4 +1,3 @@
-// src/analytics/statistics.js
 const fs = require('fs');
 const path = require('path');
 const logger = require('../core/logger');
@@ -28,26 +27,23 @@ class Statistics {
 
         this.config = {
             // Входные условия
-            minSpreadPercent: 2,
+            minSpreadPercent: 1.5,
             feePercent: 0.2,
-            
-            // Пороги для решений
-            takeProfitProgress: 80,        // 80% движения к цели → тейк
-            stopLossProgress: 25,          // 25% движения против → стоп
-            averageSpreadMultiplier: 2,    // увеличение спреда в 2 раза → усреднение
-            marketMoveThreshold: 2.0,      // движение рынка >2% → стоп
-            
-            // Прочее
-            insignificantMove: 0.2,        // 0.2% считается незначительным
-            maxAverages: 2,                // максимум усреднений
-            
+
+            // Триггеры (от entrySpread)
+            takeProfitReduction: 60,     // №2: схлоп 60% → тейк
+            stopLossFalseReduction: 30,  // №3: ложное схлоп 30% → стоп
+            stopLossIncrease: 30,        // №4: рост спреда 30% → стоп
+            marketMoveThreshold: 1.0,    // №5: движение >1% → стоп
+            spreadStableThreshold: 0.5,  // №5: спред изменился <0.5%
+
             // Таймаут
             signalTimeoutMs: 90 * 60 * 1000,
-            
+
             // Данные
             dataDir: path.join(process.cwd(), 'data'),
             maxRecords: 1000,
-            lookbackSeconds: 120
+            lookbackSeconds: 60
         };
 
         this.files = {
@@ -68,10 +64,8 @@ class Statistics {
         this.saveDebounce = null;
 
         logger.info('📊 Модуль аналитики инициализирован');
-        logger.info(`   Тейк: ${this.config.takeProfitProgress}% | Стоп: ${this.config.stopLossProgress}% | Усреднение: x${this.config.averageSpreadMultiplier} | Рынок: >${this.config.marketMoveThreshold}%`);
+        logger.info(`   Пороги: тейк -${this.config.takeProfitReduction}% | стоп (ложное схождение) -${this.config.stopLossFalseReduction}% | стоп (ложное расширение) +${this.config.stopLossIncrease}% | стоп (рынок) >${this.config.marketMoveThreshold}%`);
     }
-
-    // ==================== ЗАГРУЗКА / СОХРАНЕНИЕ ====================
 
     loadSignals() {
         try {
@@ -79,8 +73,10 @@ class Statistics {
                 const data = fs.readFileSync(this.files.signals, 'utf8');
                 this.allSignals = JSON.parse(data);
 
+                // Восстанавливаем активные сигналы
                 const openSignals = this.allSignals.filter(s => s.type === 'open' && !s.closed);
                 for (const signal of openSignals) {
+                    // Проверяем, не закрыт ли уже
                     const closed = this.allSignals.some(s => s.type === 'close' && s.id === signal.id);
                     if (!closed) {
                         this.signals.active.set(signal.symbol, {
@@ -92,15 +88,12 @@ class Statistics {
                             entryNetProfit: signal.entryNetProfit,
                             entryDexPrice: signal.entryDexPrice,
                             entryCexPrice: signal.entryCexPrice,
-                            targetDexPrice: signal.direction === 'LONG' ? signal.entryDexPrice : signal.entryCexPrice,
                             status: 'active',
                             currentSpread: signal.entrySpread,
                             currentDexPrice: signal.entryDexPrice,
                             currentCexPrice: signal.entryCexPrice,
                             maxSpread: signal.entrySpread,
-                            averageCount: 0,
-                            averagePrices: [signal.entryCexPrice],
-                            expansions: []
+                            expansions: signal.expansions || []
                         });
                         this.signals.total++;
                     }
@@ -169,8 +162,6 @@ class Statistics {
         }
     }
 
-    // ==================== ИСТОРИЯ ЦЕН ====================
-
     updatePriceHistory(symbol, dexPrice, cexPrice, timestamp) {
         if (!this.priceHistory.has(symbol)) {
             this.priceHistory.set(symbol, { dex: [], cex: [] });
@@ -190,29 +181,12 @@ class Statistics {
         if (!history) return null;
 
         const prices = type === 'dex' ? history.dex : history.cex;
-        
-        // Ищем цену, ближайшую ко времени входа
-        let entryPrice = null;
-        let minDiff = Infinity;
-        
-        for (const p of prices) {
-            const diff = Math.abs(p.timestamp - entryTime);
-            if (diff < minDiff && diff < 10000) {
-                minDiff = diff;
-                entryPrice = p.price;
-            }
-        }
-        
+        const entryPrice = prices.find(h => h.timestamp >= entryTime)?.price;
+
         if (!entryPrice) return null;
-        
+
         return ((currentPrice - entryPrice) / entryPrice) * 100;
     }
-
-    isSignificant(move) {
-        return Math.abs(move) > this.config.insignificantMove;
-    }
-
-    // ==================== ОСНОВНАЯ ЛОГИКА ====================
 
     setupListeners() {
         eventEmitter.on('data:ready', this.processData.bind(this));
@@ -228,11 +202,16 @@ class Statistics {
         this.updatePriceHistory(symbol, dexPrice, cexPrice, timestamp);
         this.updateTokenStats(symbol, absSpread);
 
+        const direction = spread > 0 ? '📈 LONG (DEX > CEX)' : '📉 SHORT (CEX > DEX)';
+        logger.debug(`💹 ${symbol}: ${direction} | спред: ${absSpread.toFixed(2)}% (net ${netProfit.toFixed(2)}%)`);
+
         const activeSignal = this.signals.active.get(symbol);
 
         if (activeSignal) {
+            // 🔥 ЕСТЬ АКТИВНЫЙ СИГНАЛ — ОБНОВЛЯЕМ ЕГО
             this.updateActiveSignal(symbol, activeSignal, absSpread, dexPrice, cexPrice, timestamp, spread);
         } else {
+            // НЕТ АКТИВНОГО СИГНАЛА — ПРОВЕРЯЕМ УСЛОВИЯ ВХОДА
             if (absSpread >= this.config.minSpreadPercent && netProfit > 0) {
                 this.createSignal(symbol, spread, absSpread, dexPrice, cexPrice, timestamp);
             }
@@ -240,34 +219,31 @@ class Statistics {
     }
 
     createSignal(symbol, spread, absSpread, dexPrice, cexPrice, timestamp) {
+        // Проверяем, нет ли уже активного сигнала
         if (this.signals.active.has(symbol)) {
-            logger.debug(`${symbol}: уже есть активный сигнал, пропускаем`);
+            logger.debug(`${symbol}: уже есть активный сигнал, пропускаем создание нового`);
             return;
         }
-        
         const direction = spread > 0 ? 'LONG' : 'SHORT';
-        
-        // Цель для тейка = DEX цена
-        const targetPrice = direction === 'LONG' ? dexPrice : cexPrice;
 
         const signal = {
             id: `${symbol}_${timestamp}`,
             symbol,
             direction,
+            // Исходная точка входа (НЕ МЕНЯЕТСЯ)
             entryTime: timestamp,
             entrySpread: absSpread,
             entryNetProfit: absSpread - this.config.feePercent,
             entryDexPrice: dexPrice,
             entryCexPrice: cexPrice,
-            targetPrice: targetPrice,
+            // Динамические данные
             status: 'active',
             currentSpread: absSpread,
             currentDexPrice: dexPrice,
             currentCexPrice: cexPrice,
             maxSpread: absSpread,
-            averageCount: 0,
-            averagePrices: [cexPrice],
-            expansions: []
+            maxSpreadTime: timestamp,
+            expansions: []  // история расширений
         };
 
         this.signals.active.set(symbol, signal);
@@ -287,7 +263,6 @@ class Statistics {
             entryNetProfit: absSpread - this.config.feePercent,
             entryDexPrice: dexPrice,
             entryCexPrice: cexPrice,
-            targetPrice: targetPrice,
             closed: false
         });
 
@@ -296,25 +271,22 @@ class Statistics {
         const emoji = direction === 'LONG' ? '📈' : '📉';
         logger.signal(`${emoji} СИГНАЛ ${direction} ${symbol}`, {
             spread: `${absSpread.toFixed(2)}%`,
-            netProfit: `${(absSpread - this.config.feePercent).toFixed(2)}%`,
-            entryCexPrice: cexPrice,
-            targetPrice: targetPrice
+            netProfit: `${(absSpread - this.config.feePercent).toFixed(2)}%`
         });
 
-        // Отправляем команду на открытие позиции
-        eventEmitter.emit('signal:open', {
+        eventEmitter.emit('signal:new', {
             symbol,
             direction,
-            entryCexPrice: cexPrice,
-            targetPrice: targetPrice,
-            entrySpread: absSpread,
-            timestamp
+            spread: absSpread,
+            netProfit: absSpread - this.config.feePercent,
+            dexPrice,
+            cexPrice
         });
 
         setTimeout(() => {
             const current = this.signals.active.get(symbol);
             if (current && current.id === signal.id) {
-                this.closeSignal(symbol, 'timeout', null, null);
+                this.closeSignal(symbol, current.currentSpread, 'timeout', null, null);
             }
         }, this.config.signalTimeoutMs);
     }
@@ -327,157 +299,140 @@ class Statistics {
 
         if (currentSpread > signal.maxSpread) {
             signal.maxSpread = currentSpread;
+            signal.maxSpreadTime = timestamp;
         }
 
-        // Расчет движения от входа
+        // Расчеты от исходной точки входа
+        const spreadChange = ((currentSpread - signal.entrySpread) / signal.entrySpread) * 100;
         const cexMove = this.getPriceMove(symbol, signal.entryTime, cexPrice, 'cex');
         const dexMove = this.getPriceMove(symbol, signal.entryTime, dexPrice, 'dex');
-        
-        if (cexMove === null || dexMove === null) {
-            logger.debug(`📊 ${symbol}: недостаточно данных для анализа`);
-            return;
-        }
 
-        const cexSignificant = this.isSignificant(cexMove);
-        const dexSignificant = this.isSignificant(dexMove);
-        
-        // Расчет прогресса движения к цели
-        let progress = 0;
+        // №1: Расширение правильное (DEX движется ОТ CEX) → ЖДЕМ + ЗАПИСЬ
         if (signal.direction === 'LONG') {
-            const targetDistance = signal.targetPrice - signal.entryCexPrice;
-            const currentDistance = cexPrice - signal.entryCexPrice;
-            progress = targetDistance > 0 ? (currentDistance / targetDistance) * 100 : 0;
+            if (spreadChange > 0 && dexMove > 0 && Math.abs(dexMove) > Math.abs(cexMove || 0)) {
+                if (currentSpread > prevSpread) {
+                    signal.expansions.push({
+                        time: timestamp,
+                        spread: currentSpread,
+                        dexPrice,
+                        cexPrice,
+                        dexMove,
+                        cexMove
+                    });
+                    logger.debug(`📈 ${symbol}: расширение правильное (DEX растет), запись ${currentSpread.toFixed(2)}%`);
+                }
+                return; // Ждем
+            }
         } else {
-            const targetDistance = signal.entryCexPrice - signal.targetPrice;
-            const currentDistance = signal.entryCexPrice - cexPrice;
-            progress = targetDistance > 0 ? (currentDistance / targetDistance) * 100 : 0;
+            if (spreadChange > 0 && dexMove < 0 && Math.abs(dexMove) > Math.abs(cexMove || 0)) {
+                if (currentSpread > prevSpread) {
+                    signal.expansions.push({
+                        time: timestamp,
+                        spread: currentSpread,
+                        dexPrice,
+                        cexPrice,
+                        dexMove,
+                        cexMove
+                    });
+                    logger.debug(`📈 ${symbol}: расширение правильное (DEX падает), запись ${currentSpread.toFixed(2)}%`);
+                }
+                return; // Ждем
+            }
         }
-        
-        // ========== ПРИНЯТИЕ РЕШЕНИЙ ==========
-        
-        // 1. Истинное схождение → ТЕЙК (80% движения к цели)
-        if (progress >= this.config.takeProfitProgress) {
-            logger.info(`🎯 ${symbol}: истинное схождение, прогресс ${progress.toFixed(1)}% → ТЕЙК`);
-            this.closeSignal(symbol, 'take_profit', cexMove, dexMove);
-            return;
+
+        // №2: Истинное схождение → ТЕЙК
+        if (currentSpread <= signal.entrySpread * (1 - this.config.takeProfitReduction / 100)) {
+            if (signal.direction === 'LONG') {
+                if (cexMove > 0.1) {
+                    this.closeSignal(symbol, currentSpread, 'take_profit_true', cexMove, dexMove);
+                    return;
+                } else {
+                    this.closeSignal(symbol, currentSpread, 'stop_loss_false_collapse', cexMove, dexMove);
+                    return;
+                }
+            }
+            if (signal.direction === 'SHORT') {
+                if (cexMove < -0.1) {
+                    this.closeSignal(symbol, currentSpread, 'take_profit_true', cexMove, dexMove);
+                    return;
+                } else {
+                    this.closeSignal(symbol, currentSpread, 'stop_loss_false_collapse', cexMove, dexMove);
+                    return;
+                }
+            }
         }
-        
-        // 2. Ложное схождение → СТОП (DEX движется к CEX на 25%)
-        if (signal.direction === 'LONG' && dexSignificant && dexMove < 0 && !cexSignificant) {
-            const dexToCexProgress = Math.abs(dexMove) / Math.abs(signal.entrySpread) * 100;
-            if (dexToCexProgress >= this.config.stopLossProgress) {
-                logger.warn(`⚠️ ${symbol}: ложное схождение (DEX→CEX ${dexToCexProgress.toFixed(1)}%) → СТОП`);
-                this.closeSignal(symbol, 'stop_loss_false_collapse', cexMove, dexMove);
+
+        // №3: Ложное схождение → СТОП
+        if (currentSpread <= signal.entrySpread * (1 - this.config.stopLossFalseReduction / 100)) {
+            if (signal.direction === 'LONG' && dexMove < 0) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_false_collapse', cexMove, dexMove);
+                return;
+            }
+            if (signal.direction === 'SHORT' && dexMove > 0) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_false_collapse', cexMove, dexMove);
                 return;
             }
         }
-        
-        if (signal.direction === 'SHORT' && dexSignificant && dexMove > 0 && !cexSignificant) {
-            const dexToCexProgress = Math.abs(dexMove) / Math.abs(signal.entrySpread) * 100;
-            if (dexToCexProgress >= this.config.stopLossProgress) {
-                logger.warn(`⚠️ ${symbol}: ложное схождение (DEX→CEX ${dexToCexProgress.toFixed(1)}%) → СТОП`);
-                this.closeSignal(symbol, 'stop_loss_false_collapse', cexMove, dexMove);
+
+        // №4: Расширение ложное → СТОП
+        if (currentSpread >= signal.entrySpread * (1 + this.config.stopLossIncrease / 100)) {
+            if (signal.direction === 'LONG' && dexMove > 0 && cexMove <= dexMove) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_false_expansion', cexMove, dexMove);
+                return;
+            }
+            if (signal.direction === 'SHORT' && dexMove < 0 && cexMove >= dexMove) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_false_expansion', cexMove, dexMove);
                 return;
             }
         }
-        
-        // 3. Расширение правильное → УСРЕДНЕНИЕ (спред увеличился в 2 раза)
-        const spreadMultiplier = currentSpread / signal.entrySpread;
-        if (spreadMultiplier >= this.config.averageSpreadMultiplier && signal.averageCount < this.config.maxAverages) {
-            if (signal.direction === 'LONG' && cexSignificant && cexMove < 0 && !dexSignificant) {
-                logger.info(`➕ ${symbol}: расширение правильное (спред x${spreadMultiplier.toFixed(1)}) → УСРЕДНЕНИЕ #${signal.averageCount + 1}`);
-                this.addToPosition(symbol, cexPrice, currentSpread, timestamp);
+
+        // №5: Рынок против нас → СТОП
+        const spreadStable = Math.abs(spreadChange) < this.config.spreadStableThreshold;
+
+        if (signal.direction === 'LONG') {
+            if (cexMove < -this.config.marketMoveThreshold &&
+                dexMove < -this.config.marketMoveThreshold &&
+                spreadStable) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_market_drop', cexMove, dexMove);
                 return;
             }
-            if (signal.direction === 'SHORT' && cexSignificant && cexMove > 0 && !dexSignificant) {
-                logger.info(`➕ ${symbol}: расширение правильное (спред x${spreadMultiplier.toFixed(1)}) → УСРЕДНЕНИЕ #${signal.averageCount + 1}`);
-                this.addToPosition(symbol, cexPrice, currentSpread, timestamp);
+        } else {
+            if (cexMove > this.config.marketMoveThreshold &&
+                dexMove > this.config.marketMoveThreshold &&
+                spreadStable) {
+                this.closeSignal(symbol, currentSpread, 'stop_loss_market_rise', cexMove, dexMove);
                 return;
             }
         }
-        
-        // 4. Расширение ложное → СТОП (DEX движется к CEX)
-        if (signal.direction === 'LONG' && dexSignificant && dexMove < 0 && cexSignificant && cexMove < 0) {
-            logger.warn(`⚠️ ${symbol}: расширение ложное → СТОП`);
-            this.closeSignal(symbol, 'stop_loss_false_expansion', cexMove, dexMove);
-            return;
-        }
-        
-        if (signal.direction === 'SHORT' && dexSignificant && dexMove > 0 && cexSignificant && cexMove > 0) {
-            logger.warn(`⚠️ ${symbol}: расширение ложное → СТОП`);
-            this.closeSignal(symbol, 'stop_loss_false_expansion', cexMove, dexMove);
-            return;
-        }
-        
-        // 5. Рынок против → СТОП (движение >2%)
-        if (signal.direction === 'LONG' && cexMove < -this.config.marketMoveThreshold && dexMove < -this.config.marketMoveThreshold) {
-            logger.warn(`🌊 ${symbol}: рынок против LONG (оба падают) → СТОП`);
-            this.closeSignal(symbol, 'stop_loss_market', cexMove, dexMove);
-            return;
-        }
-        
-        if (signal.direction === 'SHORT' && cexMove > this.config.marketMoveThreshold && dexMove > this.config.marketMoveThreshold) {
-            logger.warn(`🌊 ${symbol}: рынок против SHORT (оба растут) → СТОП`);
-            this.closeSignal(symbol, 'stop_loss_market', cexMove, dexMove);
-            return;
-        }
-        
+
         // Продолжаем ждать
-        logger.debug(`📊 ${symbol}: ждем, спред ${currentSpread.toFixed(2)}% | прогресс ${progress.toFixed(1)}% | усреднений ${signal.averageCount}`);
+        logger.debug(`📊 ${symbol}: ждем, спред ${currentSpread.toFixed(2)}% (изм ${spreadChange.toFixed(1)}%)`);
     }
 
-    addToPosition(symbol, addPrice, currentSpread, timestamp) {
-        const signal = this.signals.active.get(symbol);
-        if (!signal || signal.status !== 'active') return;
-        
-        signal.averageCount++;
-        signal.averagePrices.push(addPrice);
-        
-        // Сохраняем событие усреднения
-        this.allSignals.push({
-            id: `${signal.id}_average_${signal.averageCount}`,
-            symbol: signal.symbol,
-            direction: signal.direction,
-            type: 'average',
-            timestamp,
-            date: new Date(timestamp).toISOString(),
-            addPrice: addPrice,
-            addSpread: currentSpread,
-            averageCount: signal.averageCount
-        });
-        
-        this.scheduleSave();
-        
-        // Отправляем команду на усреднение
-        eventEmitter.emit('signal:add', {
-            symbol,
-            direction: signal.direction,
-            addPrice: addPrice,
-            addSpread: currentSpread,
-            averageCount: signal.averageCount,
-            timestamp
-        });
-    }
-
-    closeSignal(symbol, reason, cexMove, dexMove) {
+    closeSignal(symbol, exitSpread, reason, cexMove, dexMove) {
         const signal = this.signals.active.get(symbol);
         if (!signal || signal.status !== 'active') return;
 
         const exitTime = Date.now();
         const duration = (exitTime - signal.entryTime) / 1000;
-        
-        // Расчет средней цены входа (с учетом усреднений)
-        const avgEntryPrice = signal.averagePrices.reduce((a, b) => a + b, 0) / signal.averagePrices.length;
-        
-        // Расчет реальной прибыли на CEX от средней цены
+
+        // Расчет реальной прибыли на CEX
         let profitPercent = 0;
         if (signal.direction === 'LONG') {
-            profitPercent = ((signal.currentCexPrice - avgEntryPrice) / avgEntryPrice) * 100 - this.config.feePercent;
+            profitPercent = ((signal.currentCexPrice - signal.entryCexPrice) / signal.entryCexPrice) * 100 - this.config.feePercent;
         } else {
-            profitPercent = ((avgEntryPrice - signal.currentCexPrice) / avgEntryPrice) * 100 - this.config.feePercent;
+            profitPercent = ((signal.entryCexPrice - signal.currentCexPrice) / signal.entryCexPrice) * 100 - this.config.feePercent;
         }
-        
+
         const isWin = profitPercent > 0;
+
+        // Определяем тип схождения
+        let collapseType = 'unknown';
+        if (reason === 'take_profit_true') collapseType = 'true';
+        else if (reason === 'stop_loss_false_collapse') collapseType = 'false_collapse';
+        else if (reason === 'stop_loss_false_expansion') collapseType = 'false_expansion';
+        else if (reason === 'stop_loss_market_drop' || reason === 'stop_loss_market_rise') collapseType = 'market';
+        else if (reason === 'timeout') collapseType = 'timeout';
 
         const closedSignal = {
             id: signal.id,
@@ -486,30 +441,35 @@ class Statistics {
             type: 'close',
             timestamp: exitTime,
             date: new Date(exitTime).toISOString(),
+            // Исходные данные
             entrySpread: signal.entrySpread,
             entryNetProfit: signal.entryNetProfit,
             entryCexPrice: signal.entryCexPrice,
             entryDexPrice: signal.entryDexPrice,
-            targetPrice: signal.targetPrice,
-            exitSpread: signal.currentSpread,
+            // Выходные данные
+            exitSpread: exitSpread,
             exitCexPrice: signal.currentCexPrice,
             exitDexPrice: signal.currentDexPrice,
             exitProfit: profitPercent,
-            avgEntryPrice: avgEntryPrice,
-            averageCount: signal.averageCount,
-            averagePrices: signal.averagePrices,
+            // Максимальный спред
+            maxSpread: signal.maxSpread,
+            maxSpreadTime: signal.maxSpreadTime,
+            expansions: signal.expansions,
+            // Результат
             reason: reason,
+            collapseType: collapseType,
             duration: duration,
             isWin: isWin,
             cexMove: cexMove || 0,
             dexMove: dexMove || 0
         };
 
+        // Обновляем запись открытия
         const openIndex = this.allSignals.findIndex(s => s.id === signal.id && s.type === 'open');
         if (openIndex !== -1) {
             this.allSignals[openIndex].closed = true;
-            this.allSignals[openIndex].averageCount = signal.averageCount;
-            this.allSignals[openIndex].averagePrices = signal.averagePrices;
+            this.allSignals[openIndex].maxSpread = signal.maxSpread;
+            this.allSignals[openIndex].expansions = signal.expansions;
         }
 
         this.allSignals.push(closedSignal);
@@ -517,20 +477,26 @@ class Statistics {
         if (this.signals.history.length > 100) this.signals.history.pop();
         this.signals.active.delete(symbol);
 
-        this.updateProfitStats(symbol, profitPercent, isWin);
+        this.updateTruthStats(symbol, collapseType, isWin, profitPercent);
         this.scheduleSave();
 
         const emoji = isWin ? '✅' : '❌';
-        logger.signal(`${emoji} ЗАКРЫТ ${signal.direction} ${symbol}`, {
+        let typeEmoji = '📊';
+        if (collapseType === 'true') typeEmoji = '🎯';
+        else if (collapseType === 'false_collapse') typeEmoji = '⚠️';
+        else if (collapseType === 'false_expansion') typeEmoji = '💀';
+        else if (collapseType === 'market') typeEmoji = '🌊';
+
+        logger.signal(`${emoji} ${typeEmoji} ЗАКРЫТ ${signal.direction} ${symbol}`, {
             profit: `${profitPercent > 0 ? '+' : ''}${profitPercent.toFixed(2)}%`,
             duration: `${duration.toFixed(1)}с`,
             reason: reason,
-            avgEntryPrice: avgEntryPrice,
-            exitPrice: signal.currentCexPrice,
-            averageCount: signal.averageCount
+            exitSpread: `${exitSpread.toFixed(2)}%`,
+            entrySpread: `${signal.entrySpread.toFixed(2)}%`,
+            cexMove: `${cexMove > 0 ? '+' : ''}${cexMove?.toFixed(2) || 0}%`,
+            dexMove: `${dexMove > 0 ? '+' : ''}${dexMove?.toFixed(2) || 0}%`
         });
 
-        // Отправляем команду на закрытие
         eventEmitter.emit('signal:close', {
             symbol: signal.symbol,
             direction: signal.direction,
@@ -538,8 +504,11 @@ class Statistics {
             profit: profitPercent,
             duration,
             reason,
-            exitPrice: signal.currentCexPrice,
-            avgEntryPrice: avgEntryPrice
+            exitSpread,
+            collapseType,
+            entrySpread: signal.entrySpread,
+            maxSpread: signal.maxSpread,
+            expansionsCount: signal.expansions.length
         });
 
         if (this.allSignals.length > this.config.maxRecords) {
@@ -555,7 +524,14 @@ class Statistics {
                 maxSpread: 0,
                 totalProfit: 0,
                 wins: 0,
-                losses: 0
+                losses: 0,
+                truthStats: {
+                    trueCollapses: 0,
+                    falseCollapses: 0,
+                    falseExpansions: 0,
+                    marketStops: 0,
+                    timeouts: 0
+                }
             });
         }
 
@@ -564,10 +540,16 @@ class Statistics {
         stats.maxSpread = Math.max(stats.maxSpread, spread);
     }
 
-    updateProfitStats(symbol, profit, isWin) {
+    updateTruthStats(symbol, collapseType, isWin, profit) {
         const stats = this.tokenStats.get(symbol);
         if (!stats) return;
-        
+
+        if (collapseType === 'true') stats.truthStats.trueCollapses++;
+        else if (collapseType === 'false_collapse') stats.truthStats.falseCollapses++;
+        else if (collapseType === 'false_expansion') stats.truthStats.falseExpansions++;
+        else if (collapseType === 'market') stats.truthStats.marketStops++;
+        else if (collapseType === 'timeout') stats.truthStats.timeouts++;
+
         if (isWin) {
             stats.wins++;
         } else {
@@ -601,12 +583,16 @@ class Statistics {
         logger.info(`🎯 Сигналов: ${stats.totalSignals} | 🟢 Активных: ${stats.activeSignals} | ✅ Закрытых: ${stats.closedSignals}`);
         logger.info(`🏆 Винрейт: ${stats.winRate} (${stats.wins}/${stats.closedSignals}) | 💰 Прибыль: ${stats.totalProfit}`);
 
-        logger.info('\n🎯 СТАТИСТИКА ТОКЕНОВ:');
+        logger.info('\n🎯 ТИПЫ ЗАКРЫТИЙ:');
         for (const [symbol, s] of this.tokenStats.entries()) {
             if (s.signals > 0) {
-                const winRate = (s.wins / (s.wins + s.losses)) * 100;
-                const quality = winRate > 60 ? '✅' : (winRate > 40 ? '⚠️' : '❌');
-                logger.info(`   ${quality} ${symbol}: винрейт ${winRate.toFixed(0)}% | сигналов ${s.signals} | профит ${s.totalProfit.toFixed(2)}%`);
+                const total = s.truthStats.trueCollapses + s.truthStats.falseCollapses + s.truthStats.falseExpansions + s.truthStats.marketStops + s.truthStats.timeouts;
+                if (total > 0) {
+                    const trueRate = (s.truthStats.trueCollapses / total) * 100;
+                    const winRate = (s.wins / (s.wins + s.losses)) * 100;
+                    const quality = winRate > 60 ? '✅' : (winRate > 40 ? '⚠️' : '❌');
+                    logger.info(`   ${quality} ${symbol}: винрейт ${winRate.toFixed(0)}% | истинных схождений ${trueRate.toFixed(0)}% (${s.truthStats.trueCollapses}/${total}) | профит ${s.totalProfit.toFixed(2)}%`);
+                }
             }
         }
 

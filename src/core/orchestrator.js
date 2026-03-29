@@ -11,8 +11,8 @@ class Orchestrator {
         this.tokens = require('../../data/tokens');
         this.config = {
             delayBetweenTokens: 250,      // 250ms между запуском токенов
-            cycleInterval: 5000,         // 5 секунд между циклами
-            timeout: 2000                 // 2 секунд таймаут на запрос
+            cycleInterval: 2000,         // 5 секунд между циклами
+            timeout: 3000                 // 2 секунд таймаут на запрос
         };
         this.stats = {
             cycles: 0,
