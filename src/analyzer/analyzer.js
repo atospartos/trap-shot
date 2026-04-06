@@ -230,7 +230,7 @@ class Analyzer {
             id: `${symbol}_${timestamp}`,
             symbol,
             direction,
-            // Исходная точка входа (НЕ МЕНЯЕТСЯ)
+            // Исходная точка входа
             entryTime: timestamp,
             entrySpread: absSpread,
             entryNetProfit: absSpread - this.config.feePercent,
@@ -274,7 +274,7 @@ class Analyzer {
             netProfit: `${(absSpread - this.config.feePercent).toFixed(2)}%`
         });
 
-        eventEmitter.emit('signal:new', {
+        eventEmitter.emit('signal:open', {
             symbol,
             direction,
             spread: absSpread,

@@ -9,7 +9,7 @@ class TelegramNotifier {
         this.bot = new TelegramBot(process.env.TG_BOT_TOKEN, { polling: false });
         this.chatId = process.env.TG_CHAT_ID;
         
-        eventEmitter.on('signal:new', this.sendSignal.bind(this));
+        eventEmitter.on('signal:open', this.sendSignal.bind(this));
         eventEmitter.on('signal:close', this.sendResult.bind(this));
         
         logger.info('Telegram нотификатор запущен');
