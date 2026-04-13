@@ -1,4 +1,4 @@
-const ContractResolver = require('./contract-resolver');
+const ContractResolver = require('./contractResolver');
 
 async function main() {
     const resolver = new ContractResolver({

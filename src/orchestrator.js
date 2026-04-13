@@ -1,17 +1,17 @@
-// src/core/orchestrator.js
-const logger = require('./logger');
-const eventEmitter = require('./eventEmitter');
-const dexMonitor = require('../dex/monitor');
-const cexMonitor = require('../cex/monitor');
-const statistics = require('../analyzer/analyzer');
+// src/orchestrator.js
+const logger = require('./core/logger');
+const eventEmitter = require('./core/eventEmitter');
+const dexMonitor = require('./dex/dexMonitor');
+const cexMonitor = require('./cex/cexMonitor');
+const statistics = require('./analyzer/statistics');  // теперь statistics.js
 
 class Orchestrator {
     constructor() {
         this.isRunning = false;
-        this.tokens = require('../../data/tokens');
+        this.tokens = require('../data/tokens');
         this.config = {
-            delayBetweenTokens: 250,     // 250ms между запуском токенов (ratelimiter)
-            cycleInterval: 2000,         // ms между циклами
+            delayBetweenTokens: 250,     // 250ms между запуском токенов
+            cycleInterval: 2000,         // 2 секунды между циклами
             timeout: 3000                // таймаут на запрос
         };
         this.stats = {
@@ -50,7 +50,7 @@ class Orchestrator {
         this.stats.cycles++;
         logger.info(`\n🔄 ЦИКЛ ${this.stats.cycles}`);
 
-        // 🔥 Параллельная обработка всех токенов
+        // Параллельная обработка всех токенов
         const promises = this.tokens.map(token => this.processToken(token));
         const results = await Promise.allSettled(promises);
 
@@ -59,7 +59,7 @@ class Orchestrator {
         logger.info(`✅ Цикл ${this.stats.cycles} завершен: ${successCount}/${this.tokens.length} токенов обработано`);
         this.stats.processed += successCount;
 
-        // Показываем статистику каждые 10 циклов
+        // Показываем статистику каждые 20 циклов
         if (this.stats.cycles % 20 === 0) {
             const stats = statistics.getStats();
             logger.info(`📊 Статистика: ${stats.totalSignals} сигналов, винрейт ${stats.winRate}`);
@@ -70,10 +70,10 @@ class Orchestrator {
         const startTime = Date.now();
 
         try {
-            // Проверяем DEX конфигурацию
             const dexChain = Object.keys(token.dex)[0];
             const dexAddress = token.dex[dexChain];
-            // 🔥 ПАРАЛЛЕЛЬНЫЕ ЗАПРОСЫ к DEX и CEX
+            
+            // Параллельные запросы к DEX и CEX
             const dexPromise = this.withTimeout(
                 dexMonitor.fetchTokenData(token.symbol, dexChain, dexAddress),
                 this.config.timeout
@@ -84,7 +84,6 @@ class Orchestrator {
                 this.config.timeout
             );
 
-            // Ждем оба запроса параллельно
             const [dexResponse, cexResponse] = await Promise.allSettled([dexPromise, cexPromise]);
 
             // Обрабатываем DEX данные
@@ -96,13 +95,14 @@ class Orchestrator {
                     logger.debug(`   ✅ DEX: цена $${dexData.priceUsd}`);
                 }
             }
+
             // Обрабатываем CEX данные
             let cexData = null;
             if (cexResponse.status === 'fulfilled' && cexResponse.value && cexResponse.value.price) {
                 cexData = cexResponse.value;
                 logger.debug(`   ✅ CEX: цена $${cexData.price}`);
             }
-            // Проверяем наличие обоих данных
+
             if (!dexData || !dexData.priceUsd) {
                 logger.debug(`${token.symbol}: нет DEX данных`);
                 return false;
@@ -112,13 +112,13 @@ class Orchestrator {
                 logger.debug(`${token.symbol}: нет CEX данных`);
                 return false;
             }
-            // Анализируем спред для логов
+
             const spread = ((dexData.priceUsd - cexData.price) / cexData.price) * 100;
             const duration = Date.now() - startTime;
 
             logger.info(`📊 ${token.symbol}: DEX $${dexData.priceUsd} | CEX $${cexData.price} | спред ${spread.toFixed(4)}% (${duration}ms)`);
 
-            // Отправляем данные в аналитику
+            // Отправляем данные в аналитику (analyzer.js, который затем отправит в statistics)
             eventEmitter.emit('data:ready', {
                 symbol: token.symbol,
                 dexPrice: dexData.priceUsd,

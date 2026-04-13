@@ -3,42 +3,25 @@
 // Total tokens: 2
 
 module.exports = [
-    //     {
-    //         symbol: "HIPPO",
-    //         dex: {
-    //             sui: "0x8993129d72e733985f7f1a00396cbd055bad6f817fee36576ce483c8bbb8b87b::sudeng::SUDENG"
-    //         },
-    //         cex: "HIPPO/USDT"
-    //  },
-
+    // {
+    //     symbol: "HIPPO",
+    //     dex: {
+    //         sui: "0x8993129d72e733985f7f1a00396cbd055bad6f817fee36576ce483c8bbb8b87b::sudeng::SUDENG"
+    //     },
+    //     cex: "HIPPO/USDT"
+    // },
     {
-        symbol: "老子",
+        symbol: "AZTEC",
         dex: {
-            bsc: "0x1a5f9d77ca46646cd4937fd8d093f460b66f4444"
+            ethereum: "0xa27ec0006e59f245217ff08cd52a7e8b169e62d2"
         },
-        cex: "老子/USDT"
+        cex: "AZTEC/USDT"
     },
-
-    //     {
-    //         symbol: "AZTEC",
-    //         dex: {
-    //             ethereum: "0xa27ec0006e59f245217ff08cd52a7e8b169e62d2"
-    //         },
-    //         cex: "AZTEC/USDT"
-    //  },
-
-    {
-        symbol: "龙虾",
-        dex: {
-            bsc: "0xeccbb861c0dda7efd964010085488b69317e4444"
-        },
-        cex: "龙虾/USDT"
-    },
-    {
-        symbol: "币安人生",
-        dex: {
-            bsc: "0x924fa68a0FC644485b8df8AbfA0A41C2e7744444"
-        },
-        cex: "币安人生/USDT"
-    }
+    // {
+    //     symbol: "龙虾",
+    //     dex: {
+    //         bsc: "0xeccbb861c0dda7efd964010085488b69317e4444"
+    //     },
+    //     cex: "龙虾/USDT"
+    // }
 ];

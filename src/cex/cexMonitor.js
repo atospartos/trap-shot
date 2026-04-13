@@ -1,30 +1,28 @@
-// src/cex/monitor.js - исправленная версия
-const cexClient = require('./cexClient');
+// src/cex/cexMonitor.js
+const mexcPublic = require('./mexcPublic');
 const logger = require('../core/logger');
 const eventEmitter = require('../core/eventEmitter');
 
 class CexMonitor {
     async fetchPrice(tokenSymbol, cexSymbol) {
         try {
-            logger.debug(`📥 CEX запрос для ${tokenSymbol} (${cexSymbol})`);
+            const baseSymbol = cexSymbol.split('/')[0];
+            logger.debug(`📥 CEX запрос для ${tokenSymbol} (${baseSymbol})`);
 
-            const ticker = await cexClient.getTicker(cexSymbol);
+            const ticker = await mexcPublic.getTickerPrice(baseSymbol);
 
             if (ticker && ticker.price) {
                 logger.debug(`✅ ${tokenSymbol} цена $${ticker.price}`);
 
-                // Отправляем событие для обратной совместимости
                 eventEmitter.emit('cex:price', {
                     symbol: tokenSymbol,
                     price: ticker.price,
-                    volume: ticker.volume,
                     timestamp: Date.now()
                 });
 
                 return {
                     price: ticker.price,
-                    volume: ticker.volume,
-                    exchange: 'gateio',
+                    exchange: 'mexc',
                     symbol: cexSymbol
                 };
             }
@@ -34,7 +32,7 @@ class CexMonitor {
 
         } catch (error) {
             logger.error(`❌ Ошибка CEX для ${tokenSymbol}: ${error.message}`);
-            return null;  // возвращаем null вместо throw, чтобы не прерывать цикл
+            return null;
         }
     }
 }
