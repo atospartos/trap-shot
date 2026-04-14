@@ -1,18 +1,20 @@
+// contractResolver.js
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
 class ContractResolver {
     constructor(options = {}) {
-        this.baseURL = options.baseURL || 'https://api.gateio.ws/api/v4';
+        this.baseURL = options.baseURL || 'https://api.mexc.com/api/v3';
         this.delayMs = options.delayMs || 1000;
         this.timeout = options.timeout || 15000;
         this.client = null;
         this.requestCount = 0;
-        this.maxRequestsPerClient = 6; // Пересоздаем после 6 запросов
+        this.maxRequestsPerClient = 6;
         this.createClient();
     }
 
+    // Маппинг сетей (как у Gate.io)
     static mapNetwork(networkName) {
         if (!networkName) return null;
 
@@ -80,7 +82,6 @@ class ContractResolver {
         }
     }
 
-    // Создание нового клиента
     createClient() {
         this.client = axios.create({
             baseURL: this.baseURL,
@@ -95,7 +96,6 @@ class ContractResolver {
         this.requestCount = 0;
     }
 
-    // Проверка и пересоздание клиента при необходимости
     checkAndRotateClient() {
         if (this.requestCount >= this.maxRequestsPerClient) {
             console.log(`   🔄 Пересоздание клиента (${this.requestCount} запросов)`);
@@ -111,15 +111,93 @@ class ContractResolver {
         this.checkAndRotateClient();
 
         try {
-            const response = await this.client.get(`/spot/currencies/${currency}`);
+            const response = await this.client.get(`/exchangeInfo`, {
+                params: { symbol: `${currency}USDT` }
+            });
             this.requestCount++;
-            return response.data;
+            
+            if (response.data && response.data.symbols && response.data.symbols.length > 0) {
+                const symbolInfo = response.data.symbols[0];
+                
+                // Формируем структуру, аналогичную Gate.io
+                return {
+                    currency: currency,
+                    chains: this.extractChains(symbolInfo)
+                };
+            }
+            return { error: 'not_found', currency };
         } catch (error) {
             if (error.response?.status === 404) {
                 return { error: 'not_found', currency };
             }
             return { error: error.message, currency };
         }
+    }
+
+    extractChains(symbolInfo) {
+        const chains = [];
+        const contractAddress = symbolInfo.contractAddress || '';
+        
+        if (contractAddress && contractAddress !== '') {
+            // Определяем сеть по формату адреса
+            let network = this.detectNetwork(contractAddress, symbolInfo.baseAsset);
+            
+            if (network) {
+                chains.push({
+                    name: network.toUpperCase(),
+                    addr: contractAddress
+                });
+            }
+        }
+        
+        // Если нет контракта, добавляем native сеть
+        if (chains.length === 0) {
+            chains.push({
+                name: symbolInfo.baseAsset,
+                addr: symbolInfo.baseAsset
+            });
+        }
+        
+        return chains;
+    }
+
+    detectNetwork(address, symbol) {
+        // Move-адрес (Sui, Aptos)
+        if (address.includes('::')) {
+            return 'sui';
+        }
+        // Solana base58
+        else if (!address.startsWith('0x') && address.length >= 32 && address.length <= 44) {
+            return 'solana';
+        }
+        // EVM адрес
+        else if (address.startsWith('0x') && address.length === 42) {
+            if (symbol === 'BNB') return 'bsc';
+            if (symbol === 'MATIC') return 'polygon';
+            if (symbol === 'AVAX') return 'avalanche';
+            return 'ethereum';
+        }
+        // Native токен
+        else {
+            return symbol.toLowerCase();
+        }
+    }
+
+    async getContractAddresses(symbol) {
+        const currencyInfo = await this.fetchCurrencyInfo(symbol);
+
+        if (currencyInfo.error) {
+            return {
+                symbol,
+                addresses: {},
+                error: currencyInfo.error
+            };
+        }
+
+        return {
+            symbol,
+            addresses: this.extractAddresses(currencyInfo)
+        };
     }
 
     extractAddresses(currencyInfo) {
@@ -144,23 +222,6 @@ class ContractResolver {
         return addresses;
     }
 
-    async getContractAddresses(symbol) {
-        const currencyInfo = await this.fetchCurrencyInfo(symbol);
-
-        if (currencyInfo.error) {
-            return {
-                symbol,
-                addresses: {},
-                error: currencyInfo.error
-            };
-        }
-
-        return {
-            symbol,
-            addresses: this.extractAddresses(currencyInfo)
-        };
-    }
-
     static formatTokenEntry(symbol, addresses, exchange) {
         let dexStr = '';
         if (Object.keys(addresses).length === 0) {
@@ -171,7 +232,7 @@ class ContractResolver {
             dexStr = `{\n${entries.join(',\n')}\n        }`;
         }
 
-        return `    {\n        symbol: "${symbol}",\n        dex: ${dexStr},\n        cex: "${symbol}/USDT"\n }`;
+        return `    {\n        symbol: "${symbol}",\n        dex: ${dexStr},\n        cex: "${symbol}/USDT"\n    }`;
     }
 
     async updateFromFile(inputFile, outputPath, exchange) {
@@ -224,9 +285,7 @@ class ContractResolver {
             allTokens.push({
                 symbol: result.symbol,
                 dex: result.addresses,
-                cex: {
-                    [exchange]: `${result.symbol}/USDT`
-                }
+                cex: `${result.symbol}/USDT`
             });
         }
 

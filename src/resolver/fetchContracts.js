@@ -1,15 +1,22 @@
+const path = require('path');
 const ContractResolver = require('./contractResolver');
 
 async function main() {
     const resolver = new ContractResolver({
-        delayMs: 1000,        // базовая задержка между запросами
-        timeout: 15000,       // таймаут запроса
-        maxRetries: 3,        // количество повторных попыток
-        retryDelayMs: 1000    // задержка между повторами
+        delayMs: 1000,
+        timeout: 15000,
+        maxRequestsPerClient: 100
     });
-    
-    // Читаем токены из файла и генерируем tokens.js
-    await resolver.updateFromFile('/home/user/app/bot/data/tokens.txt', '/home/user/app/bot/data/tokens.js', 'gateio');
+
+    const txtfile = path.join(process.cwd(), 'data/tokens.txt');
+    const jsfile = path.join(process.cwd(), 'data/tokens.js');
+    const exchangeName = 'gateio';
+
+    await resolver.updateFromFile(
+        txtfile,
+        jsfile,
+        exchangeName
+    );
 }
 
 main().catch(console.error);

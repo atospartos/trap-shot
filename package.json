@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "update-contracts": "node src/analyzer/fetch-contracts.js"
+    "contracts": "node src/resolver/fetchContracts.js"
   },
   "keywords": [],
   "author": "atospartos",

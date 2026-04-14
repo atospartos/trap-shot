@@ -1,261 +1,287 @@
 // src/analytics/analyzer.js
 const logger = require('../core/logger');
 const eventEmitter = require('../core/eventEmitter');
-const statistics = require('./statistics');
 
 class Analyzer {
     constructor() {
-        this.activeSignals = new Map(); // symbol -> signal data
-        
+        this.activeTraps = new Map();     // symbol -> данные активной ловушки
+        this.priceHistory = new Map();    // symbol -> история цен
+
         this.config = {
-            minSpreadPercent: 0.8,
-            feePercent: 0.4,
-            takeProfitReduction: 60,
-            stopLossFalseReduction: 30,
-            stopLossIncrease: 30,
-            marketMoveThreshold: 1.0,
-            spreadStableThreshold: 0.5,
-            signalTimeoutMs: 90 * 60 * 1000
+            // Ловушка
+            trapOffsetPercent: 10,           // отступ от DEX (%)
+            dexAdjustmentThreshold: 2,       // падение DEX для перестановки ловушки (%)
+            
+            // Тейк-профит (динамический)
+            recoveryTargetPercent: 70,       // процент восстановления разрыва (%)
+            takeProfitUpdateThreshold: 2,    // изменение DEX для обновления тейка (%)
+            
+            // Таймаут
+            maxActiveTimeMs: 3 * 60 * 60 * 1000, // 3 часа от активации
+            
+            // Размер позиции
+            positionSize: 20,                // USDT
+            
+            // Вспомогательные
+            historyMinutes: 240,
+            minHistoryPoints: 10
         };
 
         this.setupListeners();
-        logger.info('🔍 Модуль анализа сигналов инициализирован');
-        logger.info(`   Пороги: тейк -${this.config.takeProfitReduction}% | стоп (ложное схождение) -${this.config.stopLossFalseReduction}% | стоп (ложное расширение) +${this.config.stopLossIncrease}% | стоп (рынок) >${this.config.marketMoveThreshold}%`);
+        logger.info('🔍 Анализатор (ловля прострелов) инициализирован');
+        logger.info(`   Ловушка: -${this.config.trapOffsetPercent}% от DEX`);
+        logger.info(`   Корректировка ловушки: при падении DEX >${this.config.dexAdjustmentThreshold}%`);
+        logger.info(`   Тейк: ${this.config.recoveryTargetPercent}% восстановления разрыва`);
+        logger.info(`   Обновление тейка: при изменении DEX >${this.config.takeProfitUpdateThreshold}%`);
+        logger.info(`   Таймаут: ${this.config.maxActiveTimeMs / 3600000}ч от активации`);
     }
 
     setupListeners() {
         eventEmitter.on('data:ready', this.processData.bind(this));
+        eventEmitter.on('position:opened', this.onPositionOpened.bind(this));
+        eventEmitter.on('position:closed', this.onPositionClosed.bind(this));
+    }
+
+    updatePriceHistory(symbol, dexPrice, cexPrice, timestamp) {
+        if (!this.priceHistory.has(symbol)) {
+            this.priceHistory.set(symbol, { dex: [], cex: [] });
+        }
+
+        const history = this.priceHistory.get(symbol);
+        history.dex.push({ price: dexPrice, timestamp });
+        history.cex.push({ price: cexPrice, timestamp });
+
+        const cutoff = timestamp - (this.config.historyMinutes * 60 * 1000);
+        history.dex = history.dex.filter(h => h.timestamp > cutoff);
+        history.cex = history.cex.filter(h => h.timestamp > cutoff);
+    }
+
+    /**
+     * Расчет динамической цены тейк-профита
+     * @param {number} entryPrice - цена входа
+     * @param {number} currentDexPrice - текущая цена DEX
+     * @returns {number} цена тейк-профита
+     */
+    calculateTakeProfit(entryPrice, currentDexPrice) {
+        const fullGap = currentDexPrice - entryPrice;
+        const recoveryAmount = fullGap * (this.config.recoveryTargetPercent / 100);
+        return entryPrice + recoveryAmount;
+    }
+
+    /**
+     * Проверка, нужно ли обновить тейк-профит
+     */
+    shouldUpdateTakeProfit(oldDexPrice, newDexPrice, entryPrice) {
+        const dexChangePercent = Math.abs((newDexPrice - oldDexPrice) / oldDexPrice) * 100;
+        return dexChangePercent >= this.config.takeProfitUpdateThreshold;
     }
 
     processData({ symbol, dexPrice, cexPrice, timestamp }) {
         if (!dexPrice || !cexPrice) return;
 
-        const spread = ((dexPrice - cexPrice) / cexPrice) * 100;
-        const absSpread = Math.abs(spread);
-        const netProfit = absSpread - this.config.feePercent;
+        this.updatePriceHistory(symbol, dexPrice, cexPrice, timestamp);
 
-        // Сохраняем историю цен
-        eventEmitter.emit('price:update', { symbol, dexPrice, cexPrice, timestamp });
+        const activeTrap = this.activeTraps.get(symbol);
 
-        const direction = spread > 0 ? '📈 LONG (DEX > CEX)' : '📉 SHORT (CEX > DEX)';
-        logger.debug(`💹 ${symbol}: ${direction} | спред: ${absSpread.toFixed(2)}% (net ${netProfit.toFixed(2)}%)`);
-
-        const activeSignal = this.activeSignals.get(symbol);
-
-        if (activeSignal) {
-            this.updateActiveSignal(symbol, activeSignal, absSpread, dexPrice, cexPrice, timestamp);
+        if (activeTrap) {
+            this.updateActiveTrap(symbol, activeTrap, dexPrice, cexPrice, timestamp);
         } else {
-            if (absSpread >= this.config.minSpreadPercent && netProfit > 0) {
-                this.createSignal(symbol, spread, absSpread, dexPrice, cexPrice, timestamp);
+            this.createTrap(symbol, dexPrice, cexPrice, timestamp);
+        }
+    }
+
+    /**
+     * Создание ловушки
+     */
+    createTrap(symbol, dexPrice, cexPrice, timestamp) {
+        const trapPrice = dexPrice * (1 - this.config.trapOffsetPercent / 100);
+        const initialTakeProfit = this.calculateTakeProfit(trapPrice, dexPrice);
+
+        const trap = {
+            id: `${symbol}_${timestamp}`,
+            symbol,
+            createdAt: timestamp,
+            dexPrice: dexPrice,
+            cexPrice: cexPrice,
+            trapPrice: trapPrice,
+            takeProfitPrice: initialTakeProfit,
+            lastDexPrice: dexPrice,      // для отслеживания изменений DEX
+            status: 'pending',
+            size: this.config.positionSize
+        };
+
+        this.activeTraps.set(symbol, trap);
+
+        logger.info(`📌 ЛОВУШКА ${symbol}`, {
+            dexPrice: `$${dexPrice.toFixed(6)}`,
+            cexPrice: `$${cexPrice.toFixed(6)}`,
+            trapOffset: `${this.config.trapOffsetPercent}%`,
+            trapPrice: `$${trapPrice.toFixed(6)}`,
+            takeProfit: `$${initialTakeProfit.toFixed(6)}`
+        });
+
+        eventEmitter.emit('signal:enter', {
+            symbol,
+            dexPrice,
+            entryPrice: trapPrice,
+            takeProfit: initialTakeProfit,
+            size: trap.size
+        });
+    }
+
+    /**
+     * Обновление активной ловушки
+     */
+    updateActiveTrap(symbol, trap, dexPrice, cexPrice, timestamp) {
+        const dexDropPercent = ((trap.dexPrice - dexPrice) / trap.dexPrice) * 100;
+
+        // 1. Корректировка ловушки при падении DEX (только для pending)
+        if (dexDropPercent >= this.config.dexAdjustmentThreshold && trap.status === 'pending') {
+            const newTrapPrice = dexPrice * (1 - this.config.trapOffsetPercent / 100);
+            const newTakeProfit = this.calculateTakeProfit(newTrapPrice, dexPrice);
+
+            logger.info(`🔄 КОРРЕКТИРОВКА ЛОВУШКИ ${symbol}`, {
+                oldPrice: `$${trap.trapPrice.toFixed(6)}`,
+                newPrice: `$${newTrapPrice.toFixed(6)}`,
+                dexDrop: `${dexDropPercent.toFixed(2)}%`,
+                oldTakeProfit: `$${trap.takeProfitPrice.toFixed(6)}`,
+                newTakeProfit: `$${newTakeProfit.toFixed(6)}`
+            });
+
+            trap.trapPrice = newTrapPrice;
+            trap.takeProfitPrice = newTakeProfit;
+            trap.dexPrice = dexPrice;
+            trap.lastDexPrice = dexPrice;
+
+            eventEmitter.emit('signal:adjust', {
+                symbol,
+                dexPrice,
+                newEntryPrice: newTrapPrice,
+                newTakeProfit: newTakeProfit,
+                dexDropPercent
+            });
+        }
+
+        // 2. Обновление тейк-профита для активной позиции
+        if (trap.status === 'active') {
+            const dexChangePercent = Math.abs((dexPrice - trap.lastDexPrice) / trap.lastDexPrice) * 100;
+            
+            if (dexChangePercent >= this.config.takeProfitUpdateThreshold) {
+                const newTakeProfit = this.calculateTakeProfit(trap.actualEntryPrice, dexPrice);
+                
+                logger.info(`🎯 ОБНОВЛЕНИЕ ТЕЙКА ${symbol}`, {
+                    oldDex: `$${trap.lastDexPrice.toFixed(6)}`,
+                    newDex: `$${dexPrice.toFixed(6)}`,
+                    dexChange: `${dexChangePercent.toFixed(2)}%`,
+                    oldTakeProfit: `$${trap.takeProfitPrice.toFixed(6)}`,
+                    newTakeProfit: `$${newTakeProfit.toFixed(6)}`
+                });
+
+                trap.takeProfitPrice = newTakeProfit;
+                trap.lastDexPrice = dexPrice;
+
+                eventEmitter.emit('signal:update_take_profit', {
+                    symbol,
+                    newTakeProfit: newTakeProfit,
+                    dexPrice: dexPrice,
+                    dexChangePercent
+                });
             }
         }
     }
 
-    createSignal(symbol, spread, absSpread, dexPrice, cexPrice, timestamp) {
-        if (this.activeSignals.has(symbol)) {
-            logger.debug(`${symbol}: уже есть активный сигнал`);
+    /**
+     * Обработка открытия позиции
+     */
+    onPositionOpened({ symbol, entryPrice, dexPrice }) {
+        const trap = this.activeTraps.get(symbol);
+        if (!trap || trap.status !== 'pending') return;
+
+        trap.status = 'active';
+        trap.actualEntryPrice = entryPrice;
+        trap.activatedAt = Date.now();
+        trap.lastDexPrice = dexPrice;
+        
+        // Расчет тейк-профита на момент активации
+        const currentTakeProfit = this.calculateTakeProfit(entryPrice, dexPrice);
+        trap.takeProfitPrice = currentTakeProfit;
+
+        logger.info(`🎯 ЛОВУШКА СРАБОТАЛА ${symbol}`, {
+            entryPrice: `$${entryPrice.toFixed(6)}`,
+            dexPrice: `$${dexPrice.toFixed(6)}`,
+            takeProfit: `$${currentTakeProfit.toFixed(6)}`,
+            recoveryTarget: `${this.config.recoveryTargetPercent}%`
+        });
+
+        eventEmitter.emit('signal:update_take_profit', {
+            symbol,
+            newTakeProfit: currentTakeProfit
+        });
+
+        // Таймаут 3 часа от активации
+        setTimeout(() => {
+            this.checkActiveTimeout(symbol);
+        }, this.config.maxActiveTimeMs);
+    }
+
+    /**
+     * Проверка таймаута активной позиции
+     */
+    checkActiveTimeout(symbol) {
+        const trap = this.activeTraps.get(symbol);
+        if (!trap || trap.status !== 'active') return;
+
+        const currentCexPrice = this.getLatestCexPrice(symbol);
+        
+        if (currentCexPrice === null) {
+            logger.warn(`${symbol}: нет текущей цены CEX для проверки таймаута`);
             return;
         }
 
-        const direction = spread > 0 ? 'LONG' : 'SHORT';
+        const profitPercent = ((currentCexPrice - trap.actualEntryPrice) / trap.actualEntryPrice) * 100;
 
-        const signal = {
-            id: `${symbol}_${timestamp}`,
-            symbol,
-            direction,
-            entryTime: timestamp,
-            entrySpread: absSpread,
-            entryNetProfit: absSpread - this.config.feePercent,
-            entryDexPrice: dexPrice,
-            entryCexPrice: cexPrice,
-            status: 'active',
-            currentSpread: absSpread,
-            currentDexPrice: dexPrice,
-            currentCexPrice: cexPrice,
-            maxSpread: absSpread,
-            maxSpreadTime: timestamp,
-            expansions: []
-        };
-
-        this.activeSignals.set(symbol, signal);
-
-        const emoji = direction === 'LONG' ? '📈' : '📉';
-        logger.signal(`${emoji} СИГНАЛ ${direction} ${symbol}`, {
-            spread: `${absSpread.toFixed(2)}%`,
-            netProfit: `${(absSpread - this.config.feePercent).toFixed(2)}%`
+        logger.warn(`⏰ ТАЙМАУТ ${symbol} (3 часа)`, {
+            entryPrice: `$${trap.actualEntryPrice.toFixed(6)}`,
+            currentPrice: `$${currentCexPrice.toFixed(6)}`,
+            profitPercent: `${profitPercent.toFixed(2)}%`
         });
 
-        // Отправляем в статистику
-        eventEmitter.emit('signal:new', signal);
+        // Всегда закрываем лимитным ордером по текущей цене
+        this.exitSignal(symbol, 'timeout', profitPercent, currentCexPrice);
+    }
 
-        eventEmitter.emit('signal:open', {
-            symbol,
-            direction,
-            spread: absSpread,
-            netProfit: absSpread - this.config.feePercent,
-            dexPrice,
-            cexPrice
+    getLatestCexPrice(symbol) {
+        const history = this.priceHistory.get(symbol);
+        if (!history || history.cex.length === 0) return null;
+        return history.cex[history.cex.length - 1].price;
+    }
+
+    exitSignal(symbol, reason, profitPercent, exitPrice) {
+        const trap = this.activeTraps.get(symbol);
+        if (!trap) return;
+
+        logger.info(`🔒 ВЫХОД ${symbol}: ${reason}`, {
+            profitPercent: `${profitPercent?.toFixed(2) || '0'}%`,
+            exitPrice: `$${exitPrice?.toFixed(6)}`
         });
 
-        setTimeout(() => {
-            const current = this.activeSignals.get(symbol);
-            if (current && current.id === signal.id) {
-                this.closeSignal(symbol, current.currentSpread, 'timeout', null, null);
-            }
-        }, this.config.signalTimeoutMs);
-    }
-
-    updateActiveSignal(symbol, signal, currentSpread, dexPrice, cexPrice, timestamp) {
-        const prevSpread = signal.currentSpread;
-        signal.currentSpread = currentSpread;
-        signal.currentDexPrice = dexPrice;
-        signal.currentCexPrice = cexPrice;
-
-        if (currentSpread > signal.maxSpread) {
-            signal.maxSpread = currentSpread;
-            signal.maxSpreadTime = timestamp;
-        }
-
-        const spreadChange = ((currentSpread - signal.entrySpread) / signal.entrySpread) * 100;
-        const cexMove = statistics.getPriceMove(symbol, signal.entryTime, cexPrice, 'cex');
-        const dexMove = statistics.getPriceMove(symbol, signal.entryTime, dexPrice, 'dex');
-
-        // №1: Расширение правильное → ЖДЕМ + ЗАПИСЬ
-        if (signal.direction === 'LONG') {
-            if (spreadChange > 0 && dexMove > 0 && Math.abs(dexMove) > Math.abs(cexMove || 0)) {
-                if (currentSpread > prevSpread) {
-                    signal.expansions.push({
-                        time: timestamp,
-                        spread: currentSpread,
-                        dexPrice,
-                        cexPrice,
-                        dexMove,
-                        cexMove
-                    });
-                }
-                return;
-            }
-        } else {
-            if (spreadChange > 0 && dexMove < 0 && Math.abs(dexMove) > Math.abs(cexMove || 0)) {
-                if (currentSpread > prevSpread) {
-                    signal.expansions.push({
-                        time: timestamp,
-                        spread: currentSpread,
-                        dexPrice,
-                        cexPrice,
-                        dexMove,
-                        cexMove
-                    });
-                }
-                return;
-            }
-        }
-
-        // №2: Истинное схождение → ТЕЙК
-        if (currentSpread <= signal.entrySpread * (1 - this.config.takeProfitReduction / 100)) {
-            if (signal.direction === 'LONG' && cexMove > 0.1) {
-                this.closeSignal(symbol, currentSpread, 'take_profit_true', cexMove, dexMove);
-                return;
-            }
-            if (signal.direction === 'SHORT' && cexMove < -0.1) {
-                this.closeSignal(symbol, currentSpread, 'take_profit_true', cexMove, dexMove);
-                return;
-            }
-        }
-
-        // №3: Ложное схождение → СТОП
-        if (currentSpread <= signal.entrySpread * (1 - this.config.stopLossFalseReduction / 100)) {
-            if (signal.direction === 'LONG' && dexMove < 0) {
-                this.closeSignal(symbol, currentSpread, 'stop_loss_false_collapse', cexMove, dexMove);
-                return;
-            }
-            if (signal.direction === 'SHORT' && dexMove > 0) {
-                this.closeSignal(symbol, currentSpread, 'stop_loss_false_collapse', cexMove, dexMove);
-                return;
-            }
-        }
-
-        // №4: Расширение ложное → СТОП
-        if (currentSpread >= signal.entrySpread * (1 + this.config.stopLossIncrease / 100)) {
-            if (signal.direction === 'LONG' && dexMove > 0 && cexMove <= dexMove) {
-                this.closeSignal(symbol, currentSpread, 'stop_loss_false_expansion', cexMove, dexMove);
-                return;
-            }
-            if (signal.direction === 'SHORT' && dexMove < 0 && cexMove >= dexMove) {
-                this.closeSignal(symbol, currentSpread, 'stop_loss_false_expansion', cexMove, dexMove);
-                return;
-            }
-        }
-
-        // №5: Рынок против нас → СТОП
-        const spreadStable = Math.abs(spreadChange) < this.config.spreadStableThreshold;
-
-        if (signal.direction === 'LONG') {
-            if (cexMove < -this.config.marketMoveThreshold &&
-                dexMove < -this.config.marketMoveThreshold &&
-                spreadStable) {
-                this.closeSignal(symbol, currentSpread, 'stop_loss_market_drop', cexMove, dexMove);
-                return;
-            }
-        } else {
-            if (cexMove > this.config.marketMoveThreshold &&
-                dexMove > this.config.marketMoveThreshold &&
-                spreadStable) {
-                this.closeSignal(symbol, currentSpread, 'stop_loss_market_rise', cexMove, dexMove);
-                return;
-            }
-        }
-    }
-
-    closeSignal(symbol, exitSpread, reason, cexMove, dexMove) {
-        const signal = this.activeSignals.get(symbol);
-        if (!signal || signal.status !== 'active') return;
-
-        const exitTime = Date.now();
-        const duration = (exitTime - signal.entryTime) / 1000;
-
-        let profitPercent = 0;
-        if (signal.direction === 'LONG') {
-            profitPercent = ((signal.currentCexPrice - signal.entryCexPrice) / signal.entryCexPrice) * 100 - this.config.feePercent;
-        } else {
-            profitPercent = ((signal.entryCexPrice - signal.currentCexPrice) / signal.entryCexPrice) * 100 - this.config.feePercent;
-        }
-
-        const isWin = profitPercent > 0;
-
-        // Отправляем в статистику
-        eventEmitter.emit('signal:close', {
-            symbol: signal.symbol,
-            direction: signal.direction,
-            exitTime,
-            exitSpread,
-            exitCexPrice: signal.currentCexPrice,
-            exitDexPrice: signal.currentDexPrice,
-            exitProfit: profitPercent,
+        eventEmitter.emit('signal:exit', {
+            symbol,
             reason,
-            duration,
-            isWin,
-            cexMove: cexMove || 0,
-            dexMove: dexMove || 0
+            profitPercent: profitPercent || 0,
+            exitPrice: exitPrice,
+            timestamp: Date.now()
         });
 
-        const emoji = isWin ? '✅' : '❌';
-        logger.signal(`${emoji} ЗАКРЫТ ${signal.direction} ${symbol}`, {
-            profit: `${profitPercent > 0 ? '+' : ''}${profitPercent.toFixed(2)}%`,
-            duration: `${duration.toFixed(1)}с`,
-            reason: reason
-        });
+        this.activeTraps.delete(symbol);
+    }
 
-        eventEmitter.emit('signal:close', {
-            symbol: signal.symbol,
-            direction: signal.direction,
-            isWin,
-            profit: profitPercent,
-            duration,
-            reason
-        });
-
-        this.activeSignals.delete(symbol);
+    onPositionClosed({ symbol, reason, profitPercent }) {
+        const trap = this.activeTraps.get(symbol);
+        if (trap) {
+            logger.info(`🔒 ПОЗИЦИЯ ЗАКРЫТА ${symbol}: ${reason} (${profitPercent > 0 ? '+' : ''}${profitPercent?.toFixed(2)}%)`);
+            this.activeTraps.delete(symbol);
+        }
     }
 }
 

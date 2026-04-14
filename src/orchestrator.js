@@ -3,7 +3,9 @@ const logger = require('./core/logger');
 const eventEmitter = require('./core/eventEmitter');
 const dexMonitor = require('./dex/dexMonitor');
 const cexMonitor = require('./cex/cexMonitor');
-const statistics = require('./analyzer/statistics');  // теперь statistics.js
+const statistics = require('./analyzer/statistics');
+const analyzer = require('./analyzer/analyzer');  // ← подключаем анализатор
+const mexcExecutor = require('./cex/mexcExecutor');
 
 class Orchestrator {
     constructor() {
@@ -113,12 +115,12 @@ class Orchestrator {
                 return false;
             }
 
-            const spread = ((dexData.priceUsd - cexData.price) / cexData.price) * 100;
+            const dropPercent = ((dexData.priceUsd - cexData.price) / dexData.priceUsd) * 100;
             const duration = Date.now() - startTime;
 
-            logger.info(`📊 ${token.symbol}: DEX $${dexData.priceUsd} | CEX $${cexData.price} | спред ${spread.toFixed(4)}% (${duration}ms)`);
+            logger.info(`📊 ${token.symbol}: DEX $${dexData.priceUsd} | CEX $${cexData.price} | прострел ${dropPercent.toFixed(2)}% (${duration}ms)`);
 
-            // Отправляем данные в аналитику (analyzer.js, который затем отправит в statistics)
+            // Отправляем данные в анализатор (анализатор сам решит, нужен ли вход)
             eventEmitter.emit('data:ready', {
                 symbol: token.symbol,
                 dexPrice: dexData.priceUsd,
@@ -163,6 +165,9 @@ class Orchestrator {
         logger.info(`🛑 Оркестратор остановлен.`);
         logger.info(`   Циклов: ${this.stats.cycles}, обработано: ${this.stats.processed}, ошибок: ${this.stats.errors}`);
         logger.info(`   Среднее время цикла: ${avgTime}с`);
+        
+        // Корректное завершение Executor
+        mexcExecutor.shutdown().catch(err => logger.error(`Ошибка остановки Executor: ${err.message}`));
     }
 }
 

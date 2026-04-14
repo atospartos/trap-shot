@@ -1,0 +1,29 @@
+{
+  "traps": [
+    {
+      "symbol": "AZTEC",
+      "entryPrice": 0.019827,
+      "takeProfit": 0.021369100000000002,
+      "size": 20,
+      "orderId": "test_1776185030368",
+      "createdAt": 1776185030368
+    },
+    {
+      "symbol": "HIPPO",
+      "entryPrice": 0.00015966,
+      "takeProfit": 0.000172078,
+      "size": 20,
+      "orderId": "test_1776185030388",
+      "createdAt": 1776185030388
+    },
+    {
+      "symbol": "URANUS",
+      "entryPrice": 0.012861000000000001,
+      "takeProfit": 0.0138613,
+      "size": 20,
+      "orderId": "test_1776185030390",
+      "createdAt": 1776185030390
+    }
+  ],
+  "updated": 1776185030390
+}

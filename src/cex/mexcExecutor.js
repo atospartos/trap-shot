@@ -6,128 +6,142 @@ const mexcPrivate = require('./mexcPrivate');
 
 class MexcExecutor {
     constructor() {
-        this.positions = new Map();
+        this.activeTraps = new Map();     // symbol -> данные активной ловушки (pending)
+        this.positions = new Map();        // symbol -> данные открытой позиции (active)
         this.monitorInterval = null;
         
         this.config = {
             monitorIntervalMs: 2000,
-            positionsFile: './data/positions.json',
-            defaultSize: 0.1,      // минимальное количество SOL
-            maxSize: 100,          // максимальное количество
-            minProfitPercent: 0.5, // минимальная прибыль для тейка
-            maxLossPercent: 0.5    // максимальный убыток для стопа
+            trapsFile: './data/traps.json',
+            positionsFile: './data/positions.json'
         };
         
         this.setupListeners();
+        this.loadTraps();
         this.loadPositions();
         this.startMonitor();
         
-        logger.info('🚀 MEXC Executor (LONG only) запущен');
+        logger.info('🚀 MEXC Executor (ловля прострелов) запущен');
     }
-
-    // ==================== ОБРАБОТЧИКИ СОБЫТИЙ ====================
 
     setupListeners() {
-        eventEmitter.on('signal:open', this.onOpen.bind(this));
-        eventEmitter.on('signal:cancel_entry', this.onCancel.bind(this));
-        eventEmitter.on('signal:stop', this.onStop.bind(this));
+        eventEmitter.on('signal:enter', this.onEnter.bind(this));
+        eventEmitter.on('signal:adjust', this.onAdjust.bind(this));
+        eventEmitter.on('signal:update_take_profit', this.onUpdateTakeProfit.bind(this));
+        eventEmitter.on('signal:exit', this.onExit.bind(this));
     }
 
-    /**
-     * Открытие LONG позиции
-     */
-    async onOpen({ symbol, entryPrice, takeProfit, size }) {
-        if (this.positions.has(symbol)) {
-            logger.warn(`${symbol}: позиция уже существует`);
+    // ==================== ЛОВУШКА (PENDING) ====================
+
+    async onEnter({ symbol, entryPrice, takeProfit, size }) {
+        if (this.activeTraps.has(symbol) || this.positions.has(symbol)) {
+            logger.warn(`${symbol}: уже есть активная ловушка или позиция`);
             return;
         }
         
-        // Проверка баланса
-        const hasFunds = await mexcPrivate.hasSufficientFunds(symbol, size, entryPrice);
-        if (!hasFunds) {
-            logger.error(`${symbol}: недостаточно средств для открытия позиции`);
-            this.report('entry_failed', symbol, { reason: 'insufficient_funds' });
-            return;
-        }
-        
-        logger.info(`📈 OPEN ${symbol}: BUY LIMIT ${entryPrice}, TP ${takeProfit}, size ${size}`);
+        logger.info(`📌 ЛОВУШКА ${symbol}: BUY LIMIT ${entryPrice}, TP ${takeProfit}, size ${size}`);
         
         const order = await mexcPrivate.placeOrder(symbol, 'BUY', 'LIMIT', size, entryPrice);
         
         if (order && order.orderId) {
-            const position = {
+            const trap = {
                 symbol,
                 entryPrice,
                 takeProfit,
                 size,
-                status: 'pending',
-                buyOrderId: order.orderId,
-                sellOrderId: null,
+                orderId: order.orderId,
                 createdAt: Date.now()
             };
             
-            this.positions.set(symbol, position);
-            this.savePositions();
-            logger.info(`✅ BUY LIMIT ${symbol} выставлен (ID: ${order.orderId})`);
-            
-            // Таймаут на вход (90 минут)
-            setTimeout(() => this.checkEntryTimeout(symbol), 90 * 60 * 1000);
+            this.activeTraps.set(symbol, trap);
+            this.saveTraps();
+            logger.info(`✅ ЛОВУШКА ${symbol} выставлена (ID: ${order.orderId})`);
         } else {
-            this.report('entry_failed', symbol, { entryPrice, takeProfit, size });
+            logger.error(`❌ Не удалось выставить ловушку ${symbol}`);
         }
     }
 
-    /**
-     * Отмена ордера на вход
-     */
-    async onCancel({ symbol }) {
-        const pos = this.positions.get(symbol);
-        if (!pos || pos.status !== 'pending') {
-            logger.warn(`${symbol}: нет активного ордера на вход`);
+    async onAdjust({ symbol, newEntryPrice, newTakeProfit }) {
+        const trap = this.activeTraps.get(symbol);
+        if (!trap) {
+            logger.warn(`${symbol}: ловушка не найдена для корректировки`);
             return;
         }
         
-        const result = await mexcPrivate.cancelOrder(symbol, pos.buyOrderId);
+        logger.info(`🔄 КОРРЕКТИРОВКА ЛОВУШКИ ${symbol}: новая цена ${newEntryPrice}`);
         
-        if (result) {
-            this.positions.delete(symbol);
-            this.savePositions();
-            this.report('entry_cancelled', symbol, { orderId: pos.buyOrderId });
-            logger.info(`❌ BUY LIMIT ${symbol} отменен`);
+        // Отменяем старый ордер
+        await mexcPrivate.cancelOrder(symbol, trap.orderId);
+        
+        // Выставляем новый
+        const order = await mexcPrivate.placeOrder(symbol, 'BUY', 'LIMIT', trap.size, newEntryPrice);
+        
+        if (order && order.orderId) {
+            trap.entryPrice = newEntryPrice;
+            trap.takeProfit = newTakeProfit;
+            trap.orderId = order.orderId;
+            this.saveTraps();
+            logger.info(`✅ ЛОВУШКА ${symbol} скорректирована (ID: ${order.orderId})`);
+        } else {
+            logger.error(`❌ Не удалось скорректировать ловушку ${symbol}`);
         }
     }
 
-    /**
-     * Стоп-лосс
-     */
-    async onStop({ symbol, stopPrice }) {
-        const pos = this.positions.get(symbol);
-        if (!pos) {
-            logger.warn(`${symbol}: позиция не найдена`);
+    // ==================== ПОЗИЦИЯ (ACTIVE) ====================
+
+    async onUpdateTakeProfit({ symbol, newTakeProfit }) {
+        const position = this.positions.get(symbol);
+        if (!position) {
+            logger.warn(`${symbol}: позиция не найдена для обновления тейка`);
             return;
         }
         
-        // Если ордер на вход еще не исполнен — отменяем
-        if (pos.status === 'pending') {
-            await mexcPrivate.cancelOrder(symbol, pos.buyOrderId);
+        // Отменяем старый ордер на продажу
+        if (position.sellOrderId) {
+            await mexcPrivate.cancelOrder(symbol, position.sellOrderId);
+            logger.debug(`🗑️ Отменен старый тейк-ордер ${symbol}`);
+        }
+        
+        // Выставляем новый
+        const order = await mexcPrivate.placeOrder(symbol, 'SELL', 'LIMIT', position.size, newTakeProfit);
+        
+        if (order && order.orderId) {
+            position.takeProfit = newTakeProfit;
+            position.sellOrderId = order.orderId;
+            this.savePositions();
+            logger.info(`🎯 ОБНОВЛЕН ТЕЙК ${symbol}: SELL LIMIT ${newTakeProfit}`);
+        }
+    }
+
+    async onExit({ symbol, reason, exitPrice }) {
+        const position = this.positions.get(symbol);
+        if (!position) {
+            logger.warn(`${symbol}: позиция не найдена для выхода`);
+            return;
+        }
+        
+        logger.info(`🔒 ВЫХОД ${symbol}: ${reason}, цена ${exitPrice}`);
+        
+        // Отменяем тейк-ордер, если есть
+        if (position.sellOrderId) {
+            await mexcPrivate.cancelOrder(symbol, position.sellOrderId);
+        }
+        
+        // Закрываем позицию лимитным ордером по указанной цене
+        const order = await mexcPrivate.placeOrder(symbol, 'SELL', 'LIMIT', position.size, exitPrice);
+        
+        if (order && order.orderId) {
+            logger.info(`✅ ПОЗИЦИЯ ${symbol} закрыта (ID: ${order.orderId})`);
             this.positions.delete(symbol);
             this.savePositions();
-            this.report('entry_cancelled_by_stop', symbol, { stopPrice });
-            logger.info(`🛑 STOP ${symbol}: отмена BUY LIMIT (не исполнен)`);
-            return;
-        }
-        
-        // Если позиция активна — выставляем SELL LIMIT
-        if (pos.status === 'active') {
-            const order = await mexcPrivate.placeOrder(symbol, 'SELL', 'LIMIT', pos.size, stopPrice);
             
-            if (order && order.orderId) {
-                pos.sellOrderId = order.orderId;
-                pos.status = 'closing';
-                pos.stopPrice = stopPrice;
-                this.savePositions();
-                logger.info(`🛑 STOP ${symbol}: SELL LIMIT ${stopPrice} выставлен (ID: ${order.orderId})`);
-            }
+            eventEmitter.emit('position:closed', {
+                symbol,
+                reason,
+                profitPercent: ((exitPrice - position.entryPrice) / position.entryPrice) * 100
+            });
+        } else {
+            logger.error(`❌ Не удалось закрыть позицию ${symbol}`);
         }
     }
 
@@ -138,122 +152,107 @@ class MexcExecutor {
     }
 
     async checkOrders() {
-        for (const [symbol, pos] of this.positions) {
-            // Проверяем BUY ордер (вход)
-            if (pos.status === 'pending' && pos.buyOrderId) {
-                const order = await mexcPrivate.getOrder(symbol, pos.buyOrderId);
-                
-                if (order && order.status === 'FILLED') {
-                    await this.onBuyFilled(symbol, pos, order);
-                }
-                if (order && order.status === 'CANCELED') {
-                    this.onBuyCancelled(symbol);
-                }
-            }
+        // Проверяем ловушки (pending)
+        for (const [symbol, trap] of this.activeTraps) {
+            const order = await mexcPrivate.getOrder(symbol, trap.orderId);
             
-            // Проверяем SELL ордер (выход)
-            if (pos.status === 'closing' && pos.sellOrderId) {
-                const order = await mexcPrivate.getOrder(symbol, pos.sellOrderId);
-                
-                if (order && order.status === 'FILLED') {
-                    await this.onSellFilled(symbol, pos, order);
+            if (order?.status === 'FILLED') {
+                await this.onTrapFilled(symbol, trap, order);
+            }
+            if (order?.status === 'CANCELED') {
+                this.activeTraps.delete(symbol);
+                this.saveTraps();
+                logger.info(`❌ Ловушка ${symbol} отменена`);
+            }
+        }
+        
+        // Проверяем позиции (active) — только для информации
+        for (const [symbol, position] of this.positions) {
+            if (position.sellOrderId) {
+                const order = await mexcPrivate.getOrder(symbol, position.sellOrderId);
+                if (order?.status === 'FILLED') {
+                    const profitPercent = ((order.price - position.entryPrice) / position.entryPrice) * 100;
+                    logger.info(`💰 ПОЗИЦИЯ ЗАКРЫТА ${symbol}: прибыль ${profitPercent > 0 ? '+' : ''}${profitPercent.toFixed(2)}%`);
+                    this.positions.delete(symbol);
+                    this.savePositions();
                 }
             }
         }
     }
 
-    async onBuyFilled(symbol, pos, order) {
-        pos.status = 'active';
-        pos.filledPrice = parseFloat(order.price);
-        pos.filledAt = Date.now();
-        this.savePositions();
+    async onTrapFilled(symbol, trap, order) {
+        const filledPrice = parseFloat(order.price);
         
-        logger.info(`✅ BUY FILLED ${symbol}: ${pos.filledPrice}`);
+        const position = {
+            symbol,
+            entryPrice: filledPrice,
+            takeProfit: trap.takeProfit,
+            size: trap.size,
+            buyOrderId: trap.orderId,
+            sellOrderId: null,
+            createdAt: Date.now()
+        };
         
-        // Выставляем SELL LIMIT на тейк-профит
-        const sellOrder = await mexcPrivate.placeOrder(symbol, 'SELL', 'LIMIT', pos.size, pos.takeProfit);
+        // Выставляем тейк-профит
+        const sellOrder = await mexcPrivate.placeOrder(symbol, 'SELL', 'LIMIT', position.size, position.takeProfit);
         
         if (sellOrder && sellOrder.orderId) {
-            pos.sellOrderId = sellOrder.orderId;
-            this.savePositions();
-            logger.info(`🎯 SELL LIMIT (тейк) ${symbol} выставлен (ID: ${sellOrder.orderId})`);
+            position.sellOrderId = sellOrder.orderId;
         }
         
-        this.report('entry_filled', symbol, {
-            filledPrice: pos.filledPrice,
-            takeProfit: pos.takeProfit,
-            size: pos.size
-        });
-    }
-
-    async onSellFilled(symbol, pos, order) {
-        const exitPrice = parseFloat(order.price);
-        const isTakeProfit = (exitPrice === pos.takeProfit);
-        const profitPercent = ((exitPrice - pos.filledPrice) / pos.filledPrice) * 100;
-        
-        logger.info(`🔒 SELL FILLED ${symbol}: ${exitPrice} (${isTakeProfit ? 'TP' : 'SL'}), P&L: ${profitPercent > 0 ? '+' : ''}${profitPercent.toFixed(2)}%`);
-        
-        this.positions.delete(symbol);
+        this.positions.set(symbol, position);
+        this.activeTraps.delete(symbol);
         this.savePositions();
+        this.saveTraps();
         
-        this.report(isTakeProfit ? 'take_profit' : 'stop_loss', symbol, {
-            exitPrice,
-            profitPercent,
-            filledPrice: pos.filledPrice,
-            takeProfit: pos.takeProfit
-        });
+        logger.info(`🎯 ЛОВУШКА СРАБОТАЛА ${symbol}: вход по ${filledPrice}, тейк ${position.takeProfit}`);
         
-        eventEmitter.emit('position:closed', {
+        eventEmitter.emit('position:opened', {
             symbol,
-            reason: isTakeProfit ? 'take_profit' : 'stop_loss',
-            exitPrice,
-            profitPercent
+            entryPrice: filledPrice,
+            dexPrice: trap.entryPrice,
+            takeProfit: position.takeProfit,
+            size: position.size
         });
     }
 
-    onBuyCancelled(symbol) {
-        this.positions.delete(symbol);
-        this.savePositions();
-        this.report('entry_cancelled', symbol, {});
-    }
+    // ==================== ЗАГРУЗКА/СОХРАНЕНИЕ ====================
 
-    checkEntryTimeout(symbol) {
-        const pos = this.positions.get(symbol);
-        if (pos && pos.status === 'pending') {
-            logger.warn(`⏰ Таймаут входа ${symbol}, отмена ордера`);
-            this.onCancel({ symbol });
+    loadTraps() {
+        try {
+            if (fs.existsSync(this.config.trapsFile)) {
+                const data = JSON.parse(fs.readFileSync(this.config.trapsFile));
+                for (const trap of data.traps || []) {
+                    this.activeTraps.set(trap.symbol, trap);
+                }
+                logger.info(`📂 Загружено ${this.activeTraps.size} ловушек`);
+            }
+        } catch (error) {
+            logger.warn(`Ошибка загрузки ловушек: ${error.message}`);
         }
     }
 
-    // ==================== ОТЧЕТЫ ====================
-
-    report(event, symbol, data) {
-        eventEmitter.emit('execution:report', { symbol, event, data, timestamp: Date.now() });
+    saveTraps() {
+        const data = { traps: Array.from(this.activeTraps.values()), updated: Date.now() };
+        fs.writeFileSync(this.config.trapsFile, JSON.stringify(data, null, 2));
     }
-
-    // ==================== УПРАВЛЕНИЕ ФАЙЛАМИ ====================
 
     loadPositions() {
         try {
             if (fs.existsSync(this.config.positionsFile)) {
                 const data = JSON.parse(fs.readFileSync(this.config.positionsFile));
                 for (const pos of data.positions || []) {
-                    if (['pending', 'active', 'closing'].includes(pos.status)) {
-                        this.positions.set(pos.symbol, pos);
-                    }
+                    this.positions.set(pos.symbol, pos);
                 }
                 logger.info(`📂 Загружено ${this.positions.size} позиций`);
             }
         } catch (error) {
-            logger.warn(`Ошибка загрузки: ${error.message}`);
+            logger.warn(`Ошибка загрузки позиций: ${error.message}`);
         }
     }
 
     savePositions() {
-        const data = {
-            positions: Array.from(this.positions.values()),
-            updated: Date.now()
-        };
+        const data = { positions: Array.from(this.positions.values()), updated: Date.now() };
         fs.writeFileSync(this.config.positionsFile, JSON.stringify(data, null, 2));
     }
 
@@ -265,16 +264,13 @@ class MexcExecutor {
             this.monitorInterval = null;
         }
         
-        // Закрываем все активные позиции
-        for (const [symbol, pos] of this.positions) {
-            if (pos.status === 'pending') {
-                await mexcPrivate.cancelOrder(symbol, pos.buyOrderId);
-            }
-            if (pos.status === 'active') {
-                await mexcPrivate.placeOrder(symbol, 'SELL', 'MARKET', pos.size);
-            }
+        // Отменяем все активные ловушки
+        for (const [symbol, trap] of this.activeTraps) {
+            await mexcPrivate.cancelOrder(symbol, trap.orderId);
+            logger.info(`🗑️ Ловушка ${symbol} отменена при остановке`);
         }
         
+        this.saveTraps();
         this.savePositions();
         logger.info('🛑 MEXC Executor остановлен');
     }
