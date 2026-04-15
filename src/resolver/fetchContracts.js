@@ -8,8 +8,8 @@ async function main() {
         maxRequestsPerClient: 100
     });
 
-    const txtfile = path.join(process.cwd(), 'data/tokens.txt');
-    const jsfile = path.join(process.cwd(), 'data/tokens.js');
+    const txtfile = path.join(process.cwd(), 'data/tokens/tokens.txt');
+    const jsfile = path.join(process.cwd(), 'data/tokens/tokens.js');
     const exchangeName = 'gateio';
 
     await resolver.updateFromFile(

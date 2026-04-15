@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "contracts": "node src/resolver/fetchContracts.js"
+    "contracts": "node src/resolver/fetchContracts.js",
+    "tokenlist": "node src/resolver/mexcdextokens.js"
   },
   "keywords": [],
   "author": "atospartos",
