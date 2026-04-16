@@ -2,15 +2,15 @@
 const logger = require('./core/logger');
 const eventEmitter = require('./core/eventEmitter');
 const dexMonitor = require('./dex/dexMonitor');
-const cexMonitor = require('./cex/cexMonitor');
+const mexcPublic = require('./cex/mexcPublic');  // ← новый публичный клиент
 const statistics = require('./analyzer/statistics');
-const analyzer = require('./analyzer/analyzer');  // ← подключаем анализатор
+const analyzer = require('./analyzer/analyzer');
 const mexcExecutor = require('./cex/mexcExecutor');
 
 class Orchestrator {
     constructor() {
         this.isRunning = false;
-        this.tokens = require('../data/tokens');
+        this.tokens = require('../data/tokens/tokens');
         this.config = {
             delayBetweenTokens: 250,     // 250ms между запуском токенов
             cycleInterval: 2000,         // 2 секунды между циклами
@@ -74,6 +74,7 @@ class Orchestrator {
         try {
             const dexChain = Object.keys(token.dex)[0];
             const dexAddress = token.dex[dexChain];
+            const cexSymbol = token.cex.split('/')[0]; // "AZTEC/USDT" → "AZTEC"
             
             // Параллельные запросы к DEX и CEX
             const dexPromise = this.withTimeout(
@@ -82,7 +83,7 @@ class Orchestrator {
             );
 
             const cexPromise = this.withTimeout(
-                cexMonitor.fetchPrice(token.symbol, token.cex),
+                mexcPublic.getTickerPrice(cexSymbol),  // ← используем публичный клиент
                 this.config.timeout
             );
 
@@ -99,10 +100,10 @@ class Orchestrator {
             }
 
             // Обрабатываем CEX данные
-            let cexData = null;
+            let cexPrice = null;
             if (cexResponse.status === 'fulfilled' && cexResponse.value && cexResponse.value.price) {
-                cexData = cexResponse.value;
-                logger.debug(`   ✅ CEX: цена $${cexData.price}`);
+                cexPrice = cexResponse.value.price;
+                logger.debug(`   ✅ CEX: цена $${cexPrice}`);
             }
 
             if (!dexData || !dexData.priceUsd) {
@@ -110,29 +111,29 @@ class Orchestrator {
                 return false;
             }
 
-            if (!cexData || !cexData.price) {
+            if (!cexPrice) {
                 logger.debug(`${token.symbol}: нет CEX данных`);
                 return false;
             }
 
-            const dropPercent = ((dexData.priceUsd - cexData.price) / dexData.priceUsd) * 100;
+            const dropPercent = ((dexData.priceUsd - cexPrice) / dexData.priceUsd) * 100;
             const duration = Date.now() - startTime;
 
-            logger.info(`📊 ${token.symbol}: DEX $${dexData.priceUsd} | CEX $${cexData.price} | прострел ${dropPercent.toFixed(2)}% (${duration}ms)`);
+            logger.info(`📊 ${token.symbol}: DEX $${dexData.priceUsd} | CEX $${cexPrice} | прострел ${dropPercent.toFixed(2)}% (${duration}ms)`);
 
-            // Отправляем данные в анализатор (анализатор сам решит, нужен ли вход)
+            // Отправляем данные в анализатор
             eventEmitter.emit('data:ready', {
                 symbol: token.symbol,
                 dexPrice: dexData.priceUsd,
-                cexPrice: cexData.price,
+                cexPrice: cexPrice,
                 dexData: {
                     dexId: dexData.dexId,
                     liquidity: dexData.liquidityUsd,
                     volume: dexData.volume24h
                 },
                 cexData: {
-                    exchange: cexData.exchange,
-                    volume: cexData.volume
+                    exchange: 'mexc',
+                    volume: 0
                 },
                 timestamp: Date.now()
             });

@@ -1,0 +1,2567 @@
+[
+  {
+    "symbol": "GAIA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:50.464Z"
+  },
+  {
+    "symbol": "XRPC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:50.723Z"
+  },
+  {
+    "symbol": "HOSKY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:51.669Z"
+  },
+  {
+    "symbol": "SERV",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:52.112Z"
+  },
+  {
+    "symbol": "HYDRA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:53.022Z"
+  },
+  {
+    "symbol": "KOM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:53.516Z"
+  },
+  {
+    "symbol": "1R0R",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:54.595Z"
+  },
+  {
+    "symbol": "TICS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:55.653Z"
+  },
+  {
+    "symbol": "COLS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:55.860Z"
+  },
+  {
+    "symbol": "FARTBOY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:56.064Z"
+  },
+  {
+    "symbol": "XWGT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:56.285Z"
+  },
+  {
+    "symbol": "BDC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:56.799Z"
+  },
+  {
+    "symbol": "NTH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:58.582Z"
+  },
+  {
+    "symbol": "VOW",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:39:59.305Z"
+  },
+  {
+    "symbol": "PAXI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:00.311Z"
+  },
+  {
+    "symbol": "PROSPER",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:01.128Z"
+  },
+  {
+    "symbol": "XIN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:02.159Z"
+  },
+  {
+    "symbol": "TOP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:02.520Z"
+  },
+  {
+    "symbol": "GVL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:02.936Z"
+  },
+  {
+    "symbol": "CSWAP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:03.680Z"
+  },
+  {
+    "symbol": "KISHU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:04.142Z"
+  },
+  {
+    "symbol": "SGT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:09.538Z"
+  },
+  {
+    "symbol": "ROG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:10.704Z"
+  },
+  {
+    "symbol": "EDEL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:12.281Z"
+  },
+  {
+    "symbol": "MEY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:13.915Z"
+  },
+  {
+    "symbol": "SLIMEX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:16.306Z"
+  },
+  {
+    "symbol": "DEFX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:16.672Z"
+  },
+  {
+    "symbol": "RTX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:17.320Z"
+  },
+  {
+    "symbol": "PECH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:17.795Z"
+  },
+  {
+    "symbol": "MCN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:19.022Z"
+  },
+  {
+    "symbol": "TPTU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:19.447Z"
+  },
+  {
+    "symbol": "FOLKS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:20.385Z"
+  },
+  {
+    "symbol": "FACT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:21.022Z"
+  },
+  {
+    "symbol": "共建",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:21.477Z"
+  },
+  {
+    "symbol": "MWXT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:21.703Z"
+  },
+  {
+    "symbol": "HAROLD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:24.093Z"
+  },
+  {
+    "symbol": "GAMESTOP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:24.520Z"
+  },
+  {
+    "symbol": "PEP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:24.749Z"
+  },
+  {
+    "symbol": "HOUSE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:25.004Z"
+  },
+  {
+    "symbol": "BIT1",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:26.165Z"
+  },
+  {
+    "symbol": "COFON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:26.844Z"
+  },
+  {
+    "symbol": "SOLU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:27.195Z"
+  },
+  {
+    "symbol": "LLD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:27.608Z"
+  },
+  {
+    "symbol": "XO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:29.002Z"
+  },
+  {
+    "symbol": "SYL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:29.386Z"
+  },
+  {
+    "symbol": "SUNCAT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:31.344Z"
+  },
+  {
+    "symbol": "RMV",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:32.197Z"
+  },
+  {
+    "symbol": "APAD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:32.406Z"
+  },
+  {
+    "symbol": "ATLA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:32.646Z"
+  },
+  {
+    "symbol": "UFD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:35.165Z"
+  },
+  {
+    "symbol": "ESTV",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:35.376Z"
+  },
+  {
+    "symbol": "BP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:35.520Z"
+  },
+  {
+    "symbol": "EVA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:35.733Z"
+  },
+  {
+    "symbol": "KIBSHI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:36.447Z"
+  },
+  {
+    "symbol": "AUC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:37.494Z"
+  },
+  {
+    "symbol": "CARDS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:37.973Z"
+  },
+  {
+    "symbol": "DPN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:38.202Z"
+  },
+  {
+    "symbol": "LCAP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:40.101Z"
+  },
+  {
+    "symbol": "PUNCH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:40.229Z"
+  },
+  {
+    "symbol": "RABI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:40.494Z"
+  },
+  {
+    "symbol": "RICE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:46.128Z"
+  },
+  {
+    "symbol": "EURR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:46.671Z"
+  },
+  {
+    "symbol": "VSYS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:46.930Z"
+  },
+  {
+    "symbol": "WDCON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:48.853Z"
+  },
+  {
+    "symbol": "NLINK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:50.376Z"
+  },
+  {
+    "symbol": "GPAD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:50.588Z"
+  },
+  {
+    "symbol": "TIBBIR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:50.811Z"
+  },
+  {
+    "symbol": "MAP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:51.271Z"
+  },
+  {
+    "symbol": "PLAY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:51.479Z"
+  },
+  {
+    "symbol": "LBC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:52.622Z"
+  },
+  {
+    "symbol": "MEA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:52.916Z"
+  },
+  {
+    "symbol": "GCB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:53.123Z"
+  },
+  {
+    "symbol": "MOONED",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:54.298Z"
+  },
+  {
+    "symbol": "OKM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:54.512Z"
+  },
+  {
+    "symbol": "CLASH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:54.783Z"
+  },
+  {
+    "symbol": "BASEDAI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:56.123Z"
+  },
+  {
+    "symbol": "RC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:56.803Z"
+  },
+  {
+    "symbol": "SUP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:57.210Z"
+  },
+  {
+    "symbol": "VEX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:57.811Z"
+  },
+  {
+    "symbol": "VRTXON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:40:58.964Z"
+  },
+  {
+    "symbol": "TAP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:00.282Z"
+  },
+  {
+    "symbol": "CLONE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:00.920Z"
+  },
+  {
+    "symbol": "CREPE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:03.211Z"
+  },
+  {
+    "symbol": "HELI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:03.482Z"
+  },
+  {
+    "symbol": "SER",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:04.306Z"
+  },
+  {
+    "symbol": "RH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:05.739Z"
+  },
+  {
+    "symbol": "CULT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:05.958Z"
+  },
+  {
+    "symbol": "UBU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:06.173Z"
+  },
+  {
+    "symbol": "COPPERINU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:06.691Z"
+  },
+  {
+    "symbol": "QIE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:09.285Z"
+  },
+  {
+    "symbol": "DINGO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:10.137Z"
+  },
+  {
+    "symbol": "PTH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:11.650Z"
+  },
+  {
+    "symbol": "LYN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:12.631Z"
+  },
+  {
+    "symbol": "EFC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:13.456Z"
+  },
+  {
+    "symbol": "TRIPLET",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:14.561Z"
+  },
+  {
+    "symbol": "DVO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:15.373Z"
+  },
+  {
+    "symbol": "MORI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:22.704Z"
+  },
+  {
+    "symbol": "DAM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:22.877Z"
+  },
+  {
+    "symbol": "TFI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:23.610Z"
+  },
+  {
+    "symbol": "MINX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:23.944Z"
+  },
+  {
+    "symbol": "LIF3",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:24.304Z"
+  },
+  {
+    "symbol": "RIVER",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:24.595Z"
+  },
+  {
+    "symbol": "MVP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:25.163Z"
+  },
+  {
+    "symbol": "EFFECT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:26.074Z"
+  },
+  {
+    "symbol": "PSAI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:26.951Z"
+  },
+  {
+    "symbol": "DEXTF",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:27.869Z"
+  },
+  {
+    "symbol": "APR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:28.624Z"
+  },
+  {
+    "symbol": "ABEY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:29.010Z"
+  },
+  {
+    "symbol": "MUMU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:29.210Z"
+  },
+  {
+    "symbol": "NEXM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:29.432Z"
+  },
+  {
+    "symbol": "BFT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:29.702Z"
+  },
+  {
+    "symbol": "SACHICOIN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:29.979Z"
+  },
+  {
+    "symbol": "GWC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:30.246Z"
+  },
+  {
+    "symbol": "TIX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:30.522Z"
+  },
+  {
+    "symbol": "ICECREAM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:30.769Z"
+  },
+  {
+    "symbol": "MIU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:31.670Z"
+  },
+  {
+    "symbol": "XOXO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:31.909Z"
+  },
+  {
+    "symbol": "NST",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:32.788Z"
+  },
+  {
+    "symbol": "OMG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:33.091Z"
+  },
+  {
+    "symbol": "EON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:33.423Z"
+  },
+  {
+    "symbol": "KPC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:33.851Z"
+  },
+  {
+    "symbol": "FAVE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:34.067Z"
+  },
+  {
+    "symbol": "MAMO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:35.388Z"
+  },
+  {
+    "symbol": "NEXA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:37.537Z"
+  },
+  {
+    "symbol": "VZON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:38.039Z"
+  },
+  {
+    "symbol": "XGZ",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:38.946Z"
+  },
+  {
+    "symbol": "FCT2",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:40.101Z"
+  },
+  {
+    "symbol": "HAM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:40.642Z"
+  },
+  {
+    "symbol": "PX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:41.009Z"
+  },
+  {
+    "symbol": "FLDT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:41.081Z"
+  },
+  {
+    "symbol": "NEOS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:41.522Z"
+  },
+  {
+    "symbol": "PPC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:42.035Z"
+  },
+  {
+    "symbol": "XEP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:42.260Z"
+  },
+  {
+    "symbol": "CMC20",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:42.731Z"
+  },
+  {
+    "symbol": "JDON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:42.960Z"
+  },
+  {
+    "symbol": "GGBR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:43.169Z"
+  },
+  {
+    "symbol": "COCO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:43.857Z"
+  },
+  {
+    "symbol": "OPENX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:44.320Z"
+  },
+  {
+    "symbol": "ZYN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:45.667Z"
+  },
+  {
+    "symbol": "EVRY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:46.585Z"
+  },
+  {
+    "symbol": "MLT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:47.138Z"
+  },
+  {
+    "symbol": "KEYCAT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:47.478Z"
+  },
+  {
+    "symbol": "UPC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:47.920Z"
+  },
+  {
+    "symbol": "NDC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:48.362Z"
+  },
+  {
+    "symbol": "AUTONOMI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:48.781Z"
+  },
+  {
+    "symbol": "OLAS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:49.229Z"
+  },
+  {
+    "symbol": "TEN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:50.395Z"
+  },
+  {
+    "symbol": "AAST",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:50.957Z"
+  },
+  {
+    "symbol": "XPX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:51.284Z"
+  },
+  {
+    "symbol": "AKITA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:52.178Z"
+  },
+  {
+    "symbol": "RISE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:52.621Z"
+  },
+  {
+    "symbol": "PEPU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:53.054Z"
+  },
+  {
+    "symbol": "BTCMT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:53.379Z"
+  },
+  {
+    "symbol": "PANTHER",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:54.245Z"
+  },
+  {
+    "symbol": "AMORE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:54.753Z"
+  },
+  {
+    "symbol": "ANI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:55.943Z"
+  },
+  {
+    "symbol": "KLK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:56.164Z"
+  },
+  {
+    "symbol": "PIB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:56.373Z"
+  },
+  {
+    "symbol": "YURU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:57.928Z"
+  },
+  {
+    "symbol": "LOOP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:41:59.994Z"
+  },
+  {
+    "symbol": "SRC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:00.544Z"
+  },
+  {
+    "symbol": "MANYU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:00.895Z"
+  },
+  {
+    "symbol": "OTK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:01.167Z"
+  },
+  {
+    "symbol": "XTM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:01.737Z"
+  },
+  {
+    "symbol": "LNQ",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:03.113Z"
+  },
+  {
+    "symbol": "RKLBON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:03.358Z"
+  },
+  {
+    "symbol": "STAT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:04.207Z"
+  },
+  {
+    "symbol": "COLLECT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:07.709Z"
+  },
+  {
+    "symbol": "EAI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:15.479Z"
+  },
+  {
+    "symbol": "DRG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:16.376Z"
+  },
+  {
+    "symbol": "XLS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:16.587Z"
+  },
+  {
+    "symbol": "XX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:16.828Z"
+  },
+  {
+    "symbol": "HASHAI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:17.348Z"
+  },
+  {
+    "symbol": "OMNOM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:17.555Z"
+  },
+  {
+    "symbol": "CYPR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:17.760Z"
+  },
+  {
+    "symbol": "NCDT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:18.966Z"
+  },
+  {
+    "symbol": "CAPTCHA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:19.274Z"
+  },
+  {
+    "symbol": "ECHELON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:20.353Z"
+  },
+  {
+    "symbol": "CTXC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:20.562Z"
+  },
+  {
+    "symbol": "AGRS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:20.971Z"
+  },
+  {
+    "symbol": "TTM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:21.176Z"
+  },
+  {
+    "symbol": "IRYS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:21.228Z"
+  },
+  {
+    "symbol": "DEB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:21.490Z"
+  },
+  {
+    "symbol": "BULL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:21.671Z"
+  },
+  {
+    "symbol": "TPT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:22.467Z"
+  },
+  {
+    "symbol": "RTXON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:22.927Z"
+  },
+  {
+    "symbol": "CAP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:23.452Z"
+  },
+  {
+    "symbol": "XMN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:23.704Z"
+  },
+  {
+    "symbol": "CES",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:24.747Z"
+  },
+  {
+    "symbol": "KFI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:25.165Z"
+  },
+  {
+    "symbol": "JAGER",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:25.605Z"
+  },
+  {
+    "symbol": "AGT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:26.394Z"
+  },
+  {
+    "symbol": "ACQ",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:26.612Z"
+  },
+  {
+    "symbol": "ENM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:27.182Z"
+  },
+  {
+    "symbol": "GRAM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:28.504Z"
+  },
+  {
+    "symbol": "XEL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:29.224Z"
+  },
+  {
+    "symbol": "9BIT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:29.676Z"
+  },
+  {
+    "symbol": "XMR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:30.495Z"
+  },
+  {
+    "symbol": "TRUSTSWAP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:32.144Z"
+  },
+  {
+    "symbol": "KDX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:32.645Z"
+  },
+  {
+    "symbol": "FD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:33.053Z"
+  },
+  {
+    "symbol": "PMT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:33.739Z"
+  },
+  {
+    "symbol": "TADA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:34.326Z"
+  },
+  {
+    "symbol": "MAIV",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:34.561Z"
+  },
+  {
+    "symbol": "DUPE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:34.818Z"
+  },
+  {
+    "symbol": "SN3",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:35.326Z"
+  },
+  {
+    "symbol": "PHNIX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:35.826Z"
+  },
+  {
+    "symbol": "OOE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:36.077Z"
+  },
+  {
+    "symbol": "AEROBUD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:36.682Z"
+  },
+  {
+    "symbol": "RIO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:37.626Z"
+  },
+  {
+    "symbol": "PENG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:39.416Z"
+  },
+  {
+    "symbol": "SRX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:39.941Z"
+  },
+  {
+    "symbol": "BOTTO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:40.160Z"
+  },
+  {
+    "symbol": "MINIMA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:41.957Z"
+  },
+  {
+    "symbol": "PRTG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:42.314Z"
+  },
+  {
+    "symbol": "PUMPCADE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:43.741Z"
+  },
+  {
+    "symbol": "COT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:44.163Z"
+  },
+  {
+    "symbol": "NAV",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:44.796Z"
+  },
+  {
+    "symbol": "DIME",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:49.944Z"
+  },
+  {
+    "symbol": "AREA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:50.151Z"
+  },
+  {
+    "symbol": "USDM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:53.186Z"
+  },
+  {
+    "symbol": "BULLA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:54.132Z"
+  },
+  {
+    "symbol": "BOMB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:55.590Z"
+  },
+  {
+    "symbol": "FRT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:56.639Z"
+  },
+  {
+    "symbol": "EMBLEM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:57.120Z"
+  },
+  {
+    "symbol": "MASS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:57.842Z"
+  },
+  {
+    "symbol": "PAI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:58.345Z"
+  },
+  {
+    "symbol": "SOLAXY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:42:59.319Z"
+  },
+  {
+    "symbol": "AFK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:01.018Z"
+  },
+  {
+    "symbol": "CPH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:01.499Z"
+  },
+  {
+    "symbol": "XDAG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:01.734Z"
+  },
+  {
+    "symbol": "ARMON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:01.945Z"
+  },
+  {
+    "symbol": "PHY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:02.589Z"
+  },
+  {
+    "symbol": "PE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:03.240Z"
+  },
+  {
+    "symbol": "AUR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:04.460Z"
+  },
+  {
+    "symbol": "DEAI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:04.676Z"
+  },
+  {
+    "symbol": "我踏马来了",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:05.803Z"
+  },
+  {
+    "symbol": "VIVI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:06.168Z"
+  },
+  {
+    "symbol": "DDMT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:06.864Z"
+  },
+  {
+    "symbol": "IRC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:08.342Z"
+  },
+  {
+    "symbol": "FRC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:11.028Z"
+  },
+  {
+    "symbol": "SFIN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:11.234Z"
+  },
+  {
+    "symbol": "BACON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:12.398Z"
+  },
+  {
+    "symbol": "PNIC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:13.236Z"
+  },
+  {
+    "symbol": "HNS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:13.476Z"
+  },
+  {
+    "symbol": "BKS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:17.148Z"
+  },
+  {
+    "symbol": "JYAI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:18.109Z"
+  },
+  {
+    "symbol": "TXC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:18.568Z"
+  },
+  {
+    "symbol": "BATTERY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:19.597Z"
+  },
+  {
+    "symbol": "MOEW",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:19.799Z"
+  },
+  {
+    "symbol": "SNFT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:20.104Z"
+  },
+  {
+    "symbol": "XP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:25.233Z"
+  },
+  {
+    "symbol": "WCO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:25.869Z"
+  },
+  {
+    "symbol": "MNTX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:26.536Z"
+  },
+  {
+    "symbol": "PHL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:27.144Z"
+  },
+  {
+    "symbol": "BOBO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:28.379Z"
+  },
+  {
+    "symbol": "BZR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:28.590Z"
+  },
+  {
+    "symbol": "CANTO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:29.869Z"
+  },
+  {
+    "symbol": "ETAN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:30.711Z"
+  },
+  {
+    "symbol": "KULA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:31.099Z"
+  },
+  {
+    "symbol": "BAX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:31.885Z"
+  },
+  {
+    "symbol": "FLD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:32.646Z"
+  },
+  {
+    "symbol": "RUJI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:33.262Z"
+  },
+  {
+    "symbol": "NTX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:33.712Z"
+  },
+  {
+    "symbol": "ROVR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:33.977Z"
+  },
+  {
+    "symbol": "RIZO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:34.481Z"
+  },
+  {
+    "symbol": "SRM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:34.775Z"
+  },
+  {
+    "symbol": "QUANTUM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:35.856Z"
+  },
+  {
+    "symbol": "RXD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:36.324Z"
+  },
+  {
+    "symbol": "ESX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:36.640Z"
+  },
+  {
+    "symbol": "MEMES",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:37.183Z"
+  },
+  {
+    "symbol": "OOB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:37.862Z"
+  },
+  {
+    "symbol": "XYZ",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:38.423Z"
+  },
+  {
+    "symbol": "WHITE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:39.396Z"
+  },
+  {
+    "symbol": "REM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:41.270Z"
+  },
+  {
+    "symbol": "OZONE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:41.746Z"
+  },
+  {
+    "symbol": "MMUI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:42.166Z"
+  },
+  {
+    "symbol": "AIX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:43.040Z"
+  },
+  {
+    "symbol": "BINDER",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:45.157Z"
+  },
+  {
+    "symbol": "AME",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:45.967Z"
+  },
+  {
+    "symbol": "CLAWNCH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:46.201Z"
+  },
+  {
+    "symbol": "NWS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:46.425Z"
+  },
+  {
+    "symbol": "ARX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:47.420Z"
+  },
+  {
+    "symbol": "WQUIL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:47.641Z"
+  },
+  {
+    "symbol": "FORU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:48.063Z"
+  },
+  {
+    "symbol": "PLAI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:48.375Z"
+  },
+  {
+    "symbol": "KTA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:48.632Z"
+  },
+  {
+    "symbol": "IMGN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:49.285Z"
+  },
+  {
+    "symbol": "ABBC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:49.797Z"
+  },
+  {
+    "symbol": "CARR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:50.312Z"
+  },
+  {
+    "symbol": "SMT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:51.143Z"
+  },
+  {
+    "symbol": "CAPTAINBNB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:52.318Z"
+  },
+  {
+    "symbol": "FT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:53.173Z"
+  },
+  {
+    "symbol": "DOVU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:53.378Z"
+  },
+  {
+    "symbol": "HLK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:53.770Z"
+  },
+  {
+    "symbol": "APTM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:53.985Z"
+  },
+  {
+    "symbol": "USAD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:54.769Z"
+  },
+  {
+    "symbol": "ASS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:56.053Z"
+  },
+  {
+    "symbol": "WATT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:56.508Z"
+  },
+  {
+    "symbol": "MOLT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:43:56.895Z"
+  },
+  {
+    "symbol": "PUSS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:01.642Z"
+  },
+  {
+    "symbol": "GXT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:02.127Z"
+  },
+  {
+    "symbol": "KLIP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:03.266Z"
+  },
+  {
+    "symbol": "MAS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:03.957Z"
+  },
+  {
+    "symbol": "XPM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:05.050Z"
+  },
+  {
+    "symbol": "RVF",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:08.264Z"
+  },
+  {
+    "symbol": "WBT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:08.446Z"
+  },
+  {
+    "symbol": "BLUB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:09.733Z"
+  },
+  {
+    "symbol": "PSYOPANIME",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:10.521Z"
+  },
+  {
+    "symbol": "TSMON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:10.805Z"
+  },
+  {
+    "symbol": "ZSWAP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:11.310Z"
+  },
+  {
+    "symbol": "BCAT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:12.626Z"
+  },
+  {
+    "symbol": "CSIX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:13.598Z"
+  },
+  {
+    "symbol": "NMT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:14.598Z"
+  },
+  {
+    "symbol": "TMOON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:15.839Z"
+  },
+  {
+    "symbol": "MICHI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:16.084Z"
+  },
+  {
+    "symbol": "DONT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:16.343Z"
+  },
+  {
+    "symbol": "POP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:17.572Z"
+  },
+  {
+    "symbol": "TERRA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:18.076Z"
+  },
+  {
+    "symbol": "LETSBONK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:18.340Z"
+  },
+  {
+    "symbol": "AZEN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:19.519Z"
+  },
+  {
+    "symbol": "GFAL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:23.090Z"
+  },
+  {
+    "symbol": "ZCHF",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:23.510Z"
+  },
+  {
+    "symbol": "WMON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:24.521Z"
+  },
+  {
+    "symbol": "PPLTON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:25.059Z"
+  },
+  {
+    "symbol": "SLF",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:25.297Z"
+  },
+  {
+    "symbol": "PIG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:26.551Z"
+  },
+  {
+    "symbol": "ROLL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:28.175Z"
+  },
+  {
+    "symbol": "PEPPER",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:32.176Z"
+  },
+  {
+    "symbol": "GST",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:32.327Z"
+  },
+  {
+    "symbol": "TRN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:32.589Z"
+  },
+  {
+    "symbol": "KORI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:36.579Z"
+  },
+  {
+    "symbol": "SYMM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:37.614Z"
+  },
+  {
+    "symbol": "XRPH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:38.863Z"
+  },
+  {
+    "symbol": "RBT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:40.253Z"
+  },
+  {
+    "symbol": "QFI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:40.679Z"
+  },
+  {
+    "symbol": "ONDSON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:41.297Z"
+  },
+  {
+    "symbol": "GPU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:41.747Z"
+  },
+  {
+    "symbol": "NLS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:42.018Z"
+  },
+  {
+    "symbol": "AKI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:42.589Z"
+  },
+  {
+    "symbol": "MYST",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:43.047Z"
+  },
+  {
+    "symbol": "FRTS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:43.982Z"
+  },
+  {
+    "symbol": "PLB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:44.249Z"
+  },
+  {
+    "symbol": "SPCM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:44.543Z"
+  },
+  {
+    "symbol": "SYNA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:45.597Z"
+  },
+  {
+    "symbol": "SOLX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:45.834Z"
+  },
+  {
+    "symbol": "VEE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:46.330Z"
+  },
+  {
+    "symbol": "HGG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:46.549Z"
+  },
+  {
+    "symbol": "MPC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:47.017Z"
+  },
+  {
+    "symbol": "AIXDROP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:47.611Z"
+  },
+  {
+    "symbol": "USDF",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:47.841Z"
+  },
+  {
+    "symbol": "ATT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:48.236Z"
+  },
+  {
+    "symbol": "ANYONE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:50.064Z"
+  },
+  {
+    "symbol": "FIT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:50.735Z"
+  },
+  {
+    "symbol": "SRDS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:51.605Z"
+  },
+  {
+    "symbol": "ARI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:52.654Z"
+  },
+  {
+    "symbol": "TORN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:53.333Z"
+  },
+  {
+    "symbol": "B3TR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:54.439Z"
+  },
+  {
+    "symbol": "MNTC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:54.660Z"
+  },
+  {
+    "symbol": "JAM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:54.873Z"
+  },
+  {
+    "symbol": "ION",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:55.790Z"
+  },
+  {
+    "symbol": "CNG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:56.000Z"
+  },
+  {
+    "symbol": "AUKI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:56.503Z"
+  },
+  {
+    "symbol": "UBX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:56.743Z"
+  },
+  {
+    "symbol": "CON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:57.468Z"
+  },
+  {
+    "symbol": "ADI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:57.585Z"
+  },
+  {
+    "symbol": "BXE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:57.999Z"
+  },
+  {
+    "symbol": "PART",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:58.419Z"
+  },
+  {
+    "symbol": "AFRD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:58.706Z"
+  },
+  {
+    "symbol": "CPFC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:44:59.035Z"
+  },
+  {
+    "symbol": "CLO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:00.573Z"
+  },
+  {
+    "symbol": "FAKT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:01.530Z"
+  },
+  {
+    "symbol": "MUON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:01.754Z"
+  },
+  {
+    "symbol": "EWT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:01.977Z"
+  },
+  {
+    "symbol": "WARD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:03.386Z"
+  },
+  {
+    "symbol": "FON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:03.607Z"
+  },
+  {
+    "symbol": "SHR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:03.929Z"
+  },
+  {
+    "symbol": "EDOM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:04.151Z"
+  },
+  {
+    "symbol": "ZANO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:05.808Z"
+  },
+  {
+    "symbol": "PMG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:06.032Z"
+  },
+  {
+    "symbol": "TATSU",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:06.340Z"
+  },
+  {
+    "symbol": "BXX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:06.588Z"
+  },
+  {
+    "symbol": "SNSY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:07.033Z"
+  },
+  {
+    "symbol": "TEM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:08.004Z"
+  },
+  {
+    "symbol": "TRUTH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:08.083Z"
+  },
+  {
+    "symbol": "METAL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:08.300Z"
+  },
+  {
+    "symbol": "HARRY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:08.510Z"
+  },
+  {
+    "symbol": "MOCHI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:12.891Z"
+  },
+  {
+    "symbol": "UCN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:14.371Z"
+  },
+  {
+    "symbol": "CEEK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:16.757Z"
+  },
+  {
+    "symbol": "龙虾",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:17.201Z"
+  },
+  {
+    "symbol": "USDR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:17.725Z"
+  },
+  {
+    "symbol": "LOBSTAR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:18.071Z"
+  },
+  {
+    "symbol": "FIRO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:18.296Z"
+  },
+  {
+    "symbol": "TIT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:18.730Z"
+  },
+  {
+    "symbol": "IMO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:19.980Z"
+  },
+  {
+    "symbol": "CRWVON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:20.741Z"
+  },
+  {
+    "symbol": "VISTA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:22.108Z"
+  },
+  {
+    "symbol": "IONQON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:22.731Z"
+  },
+  {
+    "symbol": "CLUB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:23.208Z"
+  },
+  {
+    "symbol": "PHT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:25.854Z"
+  },
+  {
+    "symbol": "DCT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:26.780Z"
+  },
+  {
+    "symbol": "GEON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:27.222Z"
+  },
+  {
+    "symbol": "ONI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:27.687Z"
+  },
+  {
+    "symbol": "ADO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:30.521Z"
+  },
+  {
+    "symbol": "IPEPE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:30.755Z"
+  },
+  {
+    "symbol": "BTW",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:31.467Z"
+  },
+  {
+    "symbol": "DISTORTED",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:32.307Z"
+  },
+  {
+    "symbol": "GHIBLI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:33.394Z"
+  },
+  {
+    "symbol": "RENTA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:35.357Z"
+  },
+  {
+    "symbol": "XP8",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:35.803Z"
+  },
+  {
+    "symbol": "CLS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:38.778Z"
+  },
+  {
+    "symbol": "AL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:39.490Z"
+  },
+  {
+    "symbol": "TTN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:41.343Z"
+  },
+  {
+    "symbol": "WELF",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:41.570Z"
+  },
+  {
+    "symbol": "SUMR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:42.032Z"
+  },
+  {
+    "symbol": "REAL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:42.264Z"
+  },
+  {
+    "symbol": "DST",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:42.935Z"
+  },
+  {
+    "symbol": "ECOR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:43.364Z"
+  },
+  {
+    "symbol": "MTC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:44.612Z"
+  },
+  {
+    "symbol": "SDB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:48.405Z"
+  },
+  {
+    "symbol": "SMARS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:49.319Z"
+  },
+  {
+    "symbol": "BABYBONK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:50.033Z"
+  },
+  {
+    "symbol": "EXS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:50.696Z"
+  },
+  {
+    "symbol": "QRL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:51.150Z"
+  },
+  {
+    "symbol": "MEEP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:51.442Z"
+  },
+  {
+    "symbol": "COCA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:52.075Z"
+  },
+  {
+    "symbol": "BULLISH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:52.881Z"
+  },
+  {
+    "symbol": "HUND",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:53.138Z"
+  },
+  {
+    "symbol": "BGB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:53.737Z"
+  },
+  {
+    "symbol": "TIVA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:53.998Z"
+  },
+  {
+    "symbol": "SAL",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:54.560Z"
+  },
+  {
+    "symbol": "LEE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:55.325Z"
+  },
+  {
+    "symbol": "ANT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:56.409Z"
+  },
+  {
+    "symbol": "SEDA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:56.842Z"
+  },
+  {
+    "symbol": "BTY",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:57.672Z"
+  },
+  {
+    "symbol": "SVTS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:58.709Z"
+  },
+  {
+    "symbol": "JCT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:45:59.715Z"
+  },
+  {
+    "symbol": "DLB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:01.359Z"
+  },
+  {
+    "symbol": "NXRA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:01.932Z"
+  },
+  {
+    "symbol": "BUTTHOLE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:02.155Z"
+  },
+  {
+    "symbol": "MOMO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:03.862Z"
+  },
+  {
+    "symbol": "OSAK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:05.058Z"
+  },
+  {
+    "symbol": "CRTR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:05.268Z"
+  },
+  {
+    "symbol": "NOCON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:05.919Z"
+  },
+  {
+    "symbol": "NSG",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:07.683Z"
+  },
+  {
+    "symbol": "UNC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:09.194Z"
+  },
+  {
+    "symbol": "PMM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:10.629Z"
+  },
+  {
+    "symbol": "KIN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:10.883Z"
+  },
+  {
+    "symbol": "MIH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:11.369Z"
+  },
+  {
+    "symbol": "LSM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:11.918Z"
+  },
+  {
+    "symbol": "IXS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:12.535Z"
+  },
+  {
+    "symbol": "ZCX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:12.737Z"
+  },
+  {
+    "symbol": "TRCR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:13.043Z"
+  },
+  {
+    "symbol": "M87",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:13.481Z"
+  },
+  {
+    "symbol": "PENDULUM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:13.989Z"
+  },
+  {
+    "symbol": "RNGR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:14.235Z"
+  },
+  {
+    "symbol": "TCT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:14.907Z"
+  },
+  {
+    "symbol": "YNE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:16.499Z"
+  },
+  {
+    "symbol": "LUNAM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:17.600Z"
+  },
+  {
+    "symbol": "MINDFAK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:18.109Z"
+  },
+  {
+    "symbol": "DIEM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:18.331Z"
+  },
+  {
+    "symbol": "SOH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:19.236Z"
+  },
+  {
+    "symbol": "P2P",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:19.519Z"
+  },
+  {
+    "symbol": "SGB",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:19.741Z"
+  },
+  {
+    "symbol": "NUSD",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:20.202Z"
+  },
+  {
+    "symbol": "BUTTCOIN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:24.570Z"
+  },
+  {
+    "symbol": "CRYPGPT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:24.810Z"
+  },
+  {
+    "symbol": "AXM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:25.479Z"
+  },
+  {
+    "symbol": "MIN",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:26.091Z"
+  },
+  {
+    "symbol": "JSK",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:26.551Z"
+  },
+  {
+    "symbol": "EGO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:26.979Z"
+  },
+  {
+    "symbol": "OVPP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:27.666Z"
+  },
+  {
+    "symbol": "67",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:28.408Z"
+  },
+  {
+    "symbol": "SELO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:29.429Z"
+  },
+  {
+    "symbol": "CEGON",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:29.696Z"
+  },
+  {
+    "symbol": "AI3",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:29.963Z"
+  },
+  {
+    "symbol": "VICS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:31.022Z"
+  },
+  {
+    "symbol": "SNAI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:31.410Z"
+  },
+  {
+    "symbol": "SKI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:32.165Z"
+  },
+  {
+    "symbol": "SN64",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:32.670Z"
+  },
+  {
+    "symbol": "MILLI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:33.142Z"
+  },
+  {
+    "symbol": "A1X",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:33.634Z"
+  },
+  {
+    "symbol": "PAW",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:34.670Z"
+  },
+  {
+    "symbol": "LKT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:35.175Z"
+  },
+  {
+    "symbol": "114514",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:35.451Z"
+  },
+  {
+    "symbol": "VEREM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:35.881Z"
+  },
+  {
+    "symbol": "SN51",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:37.425Z"
+  },
+  {
+    "symbol": "RIZE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:37.854Z"
+  },
+  {
+    "symbol": "SIGMA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:41.133Z"
+  },
+  {
+    "symbol": "RXS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:41.862Z"
+  },
+  {
+    "symbol": "BULLS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:42.455Z"
+  },
+  {
+    "symbol": "LEOX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:42.684Z"
+  },
+  {
+    "symbol": "FREEDOM",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:43.267Z"
+  },
+  {
+    "symbol": "TOWER",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:46.520Z"
+  },
+  {
+    "symbol": "MTP",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:47.141Z"
+  },
+  {
+    "symbol": "TESTICLE",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:47.923Z"
+  },
+  {
+    "symbol": "SERAPH",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:48.334Z"
+  },
+  {
+    "symbol": "TRU1",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:48.569Z"
+  },
+  {
+    "symbol": "TSUKA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:49.210Z"
+  },
+  {
+    "symbol": "LQR",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:49.440Z"
+  },
+  {
+    "symbol": "SVSA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:49.671Z"
+  },
+  {
+    "symbol": "HIFI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:49.879Z"
+  },
+  {
+    "symbol": "NAVI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:50.176Z"
+  },
+  {
+    "symbol": "PAWS",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:50.914Z"
+  },
+  {
+    "symbol": "CARROT",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:51.366Z"
+  },
+  {
+    "symbol": "CLGO",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:52.176Z"
+  },
+  {
+    "symbol": "UQC",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:53.762Z"
+  },
+  {
+    "symbol": "WNX",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:54.002Z"
+  },
+  {
+    "symbol": "WTA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:54.782Z"
+  },
+  {
+    "symbol": "MUBI",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:55.091Z"
+  },
+  {
+    "symbol": "MXNA",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:55.656Z"
+  },
+  {
+    "symbol": "ALTLAYER",
+    "category": "PURE",
+    "timestamp": "2026-04-16T18:46:56.145Z"
+  }
+]
